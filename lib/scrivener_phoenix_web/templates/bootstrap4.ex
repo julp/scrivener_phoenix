@@ -2,12 +2,14 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
   use Scrivener.Phoenix.Template
   alias Scrivener.Phoenix.Gap
   alias Scrivener.Phoenix.Page
+  import Scrivener.Phoenix.Page
 
   # TODO: temporary
   defp dgettext(_domain, msgid) do
     msgid
   end
 
+  # if we are on the first page, skip the link to it
   defp add_first_page(links, %{}, %Scrivener.Page{page_number: 1}) do
     links
   end
@@ -27,6 +29,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
+  # if we are on the last page, skip the link to it
   defp add_last_page(links, %{}, %Scrivener.Page{page_number: no, total_pages: no}) do
     links
   end
@@ -85,7 +88,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
   end
 
   defp page(page = %Page{no: no}, %Scrivener.Page{page_number: no}) do
-    #if Page.current?(page) do
+    #if Page.current?(page, spage) do
       content_tag(:li, class: "page-item active") do
         page.no
       end
@@ -96,10 +99,9 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     #end
   end
 
-  defp page(page = %Page{}, %Scrivener.Page{}) do
-    # TODO: rel=next/prev
+  defp page(page = %Page{}, spage = %Scrivener.Page{}) do
     content_tag(:li, class: "page-item") do
-      link(page.no, to: page.href, class: "page-link")
+      link(page.no, handle_rel(page, spage, to: page.href, class: "page-link"))
     end
   end
 

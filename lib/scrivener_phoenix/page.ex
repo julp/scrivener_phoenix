@@ -5,10 +5,27 @@ defmodule Scrivener.Phoenix.Page do
     %__MODULE__{no: no, href: href}
   end
 
+  def handle_rel(page = %__MODULE__{}, spage = %Scrivener.Page{}, attributes) do
+    cond do
+      page.no == spage.page_number + 1 ->
+        Keyword.put(attributes, :rel, "next")
+      page.no == spage.page_number - 1 ->
+        Keyword.put(attributes, :rel, "prev")
+      true ->
+        attributes
+    end
+  end
+
+  @doc ~S"""
+  Is the page the first?
+  """
   def first_page?(page = %__MODULE__{}) do
     page.no == 1
   end
 
+  @doc ~S"""
+  Is the page the last?
+  """
   def last_page?(page = %__MODULE__{}, spage = %Scrivener.Page{}) do
     page.no == spage.total_pages
   end
