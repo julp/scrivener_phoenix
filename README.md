@@ -1,0 +1,162 @@
+# scrivener_phoenix
+
+Helper to render a [Scrivener](https://hex.pm/packages/scrivener) pagination for phoenix.
+
+## Features
+
+### Inverted pagination
+
+~~In a standard pagination, the first page contains the lastest content. This package provides an option for an inverted pagination where the first page contains the oldest content.~~
+
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed by adding `scrivener_phoenix` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:scrivener_phoenix, "~> 0.1.0"}
+  ]
+end
+```
+
+~~Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.pm/scrivener_phoenix).~~
+
+## Configuration
+
+Configure scrivener_phoenix in your_app/config/config.exs:
+
+```
+config :scrivener_phoenix,
+  left: 0,
+  right: 0,
+  window: 4,
+  outer_window: 0,
+  inverted: false,
+  param_name: :page,
+  template: Scrivener.Phoenix.Template.Bootstrap4
+```
+
+(these are the defaults and can be omitted)
+
+* left (default: `0`): TODO
+* right (default: `0`): TODO
+* outer_window (default: `0`): TODO
+* ~~inverted (default: `false`): TODO~~
+* param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
+* template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
+
+## Usage
+
+In your view(s), add:
+
+```elixir
+import Scrivener.PhoenixView
+```
+
+Or, to be global, add it to lib/your_app_web.ex:
+
+```elixir
+defmodule YourAppWeb do
+  # ...
+  def view do
+    quote do
+      # ...
+      import Scrivener.PhoenixView # <= add this line
+    end
+  end
+  # ...
+end
+```
+
+(or use `Scrivener.PhoenixView.paginate` instead of just `paginate` in your templates)
+
+In your context, the resultset of your query is paginated with scrivener:
+
+```elixir
+defmodule MyApp.Blog do
+  def posts_at_page(page) do
+    MyApp.Post
+    |> order_by(:created_at)
+    |> Repo.paginate(page: page) # <= this line is your scrivener pagination
+  end
+end
+```
+
+Then, in your controller, assign it to the view:
+
+```elixir
+def index(conn, params) do
+  posts = params
+  |> Map.get(:page, 1)
+  |> Blog.posts_at_page()
+
+  conn
+  |> assign(:posts, posts)
+  # ...
+  |> render("index.html")
+end
+```
+
+Then, in your template, you just have to call the `paginate` helper:
+
+```eex
+<%= paginate @conn, @posts, route_function, route_params %>
+```
+
+Where:
+* route_function is the helper (YourAppWeb.Router.Helpers.\*_url or YourAppWeb.Router.Helpers.\*_path) - don't forget to add the `&` and the `/arity`. Example: `&MyBlogWeb.Router.Helpers.blog_path/3`
+* route_params is a **list** of parameters passed to *route_function* excepted the conn (`%Plug.Conn{}`). This list should at least contains the action. Example: `[:index]`
+
+**NOTES:**
+
+By "default", scrivener_phoenix will simply propagate the page number in the query string (eg: /blog?page=1).
+
+For this route:
+
+```elixir
+defmodule MyBlogWeb.Router do
+  scope "/" do
+    # ...
+    get "/", MyBlogWeb.PostController, :index
+    # ...
+  end
+end
+```
+
+You have to paginate this way:
+
+```eex
+<%= paginate @conn, @posts, &MyBlogWeb.Router.Helpers.blog_path/3, [:index] %>
+```
+
+The `/3` arity stands for:
+
+1. the *conn*
+2. the action (:index)
+3. the additionnal (and facultative) parameters to add in query string (where the *page* parameter will be injected)
+
+But the *page* parameter can also be included in the path of the URL instead of the query string (eg /blog/page/1), like this:
+
+```elixir
+defmodule MyBlogWeb.Router do
+  scope "/" do
+    # ...
+    get "/page/:page", MyBlogWeb.PostController, :index, as: :page
+    # ...
+  end
+end
+```
+
+And you paginate as follows:
+
+```eex
+<%= paginate @conn, @posts, &MyBlogWeb.Router.Helpers.blog_page_path/4, [:index] %>
+```
+
+The arity becomes `/4` with the additionnal :page parameter:
+
+1. the *conn*
+2. the action (:index)
+3. the page
+4. the additionnal (and facultative) parameters to add in query string
