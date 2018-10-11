@@ -5,20 +5,11 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
   import Scrivener.Phoenix.Page
 
   # TODO: temporary
-  defp dgettext(_domain, msgid) do
+  def dgettext(_domain, msgid) do
     msgid
   end
 
-  # if we are on the first page, skip the link to it
-  defp add_first_page(links, %{}, %Scrivener.Page{page_number: 1}) do
-    links
-  end
-
-  defp add_first_page(links, %{first: first_page}, %Scrivener.Page{}) do
-    [first_page(first_page) | links]
-  end
-
-  defp first_page(page = %Page{}) do
+  def first_page(page = %Page{}) do
     content = "«"
     content_tag(:li, class: "page-item") do
       #if Page.first_page?(page) do
@@ -29,16 +20,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
-  # if we are on the last page, skip the link to it
-  defp add_last_page(links, %{}, %Scrivener.Page{page_number: no, total_pages: no}) do
-    links
-  end
-
-  defp add_last_page(links, %{last: last_page}, %Scrivener.Page{}) do
-    [last_page(last_page) | links]
-  end
-
-  defp last_page(page = %Page{}) do
+  def last_page(page = %Page{}) do
     content = "»"
     content_tag(:li, class: "page-item") do
       #if Page.last_page?(page) do
@@ -49,15 +31,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
-  defp add_prev_page(links, %{prev: nil}, %Scrivener.Page{}) do
-    links
-  end
-
-  defp add_prev_page(links, %{prev: prev}, %Scrivener.Page{}) do
-    [prev_page(prev) | links]
-  end
-
-  defp prev_page(page = %Page{}) do
+  def prev_page(page = %Page{}) do
     content = "‹"
     content_tag(:li, class: "page-item") do
       #if Page.first_page?(page) do
@@ -68,15 +42,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
-  defp add_next_page(links, %{next: nil}, %Scrivener.Page{}) do
-    links
-  end
-
-  defp add_next_page(links, %{next: next}, %Scrivener.Page{}) do
-    [next_page(next) | links]
-  end
-
-  defp next_page(page = %Page{}) do
+  def next_page(page = %Page{}) do
     content = "›"
     content_tag(:li, class: "page-item") do
       #if Page.last_page?(page) do
@@ -87,7 +53,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
-  defp page(page = %Page{no: no}, %Scrivener.Page{page_number: no}) do
+  def page(page = %Page{no: no}, %Scrivener.Page{page_number: no}) do
     #if Page.current?(page, spage) do
       content_tag(:li, class: "page-item active") do
         page.no
@@ -99,35 +65,21 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     #end
   end
 
-  defp page(page = %Page{}, spage = %Scrivener.Page{}) do
+  def page(page = %Page{}, spage = %Scrivener.Page{}) do
     content_tag(:li, class: "page-item") do
       link(page.no, handle_rel(page, spage, to: page.href, class: "page-link"))
     end
   end
 
-  defp page(%Gap{}, %Scrivener.Page{}) do
+  def page(%Gap{}, %Scrivener.Page{}) do
     # TODO: gettext
     content_tag(:li, link("…", to: "#", class: "page-link"), class: "page-item disabled")
   end
 
-  defp add_pages(links, pages, spage = %Scrivener.Page{}) do
-    pages
-    |> Enum.reverse()
-    |> Enum.into(links, fn page ->
-      page(page, spage)
-    end)
-  end
-
-  def paginator(pages = %{}, spage = %Scrivener.Page{}, _options = %{}) do
+  def paginator(links) do
     content_tag(:nav) do
       content_tag(:ul, class: "pagination") do
-        []
-        |> add_next_page(pages, spage)
-        |> add_last_page(pages, spage)
-        |> add_pages(pages.pages, spage)
-        |> Enum.reverse()
-        |> add_prev_page(pages, spage)
-        |> add_first_page(pages, spage)
+        links
       end
     end
   end

@@ -45,7 +45,7 @@ defmodule Scrivener.PhoenixView do
     right_window_plus_one = range_as_list(page.total_pages - options.right, page.total_pages)
     inside_window_plus_each_sides = range_as_list(page.page_number - options.window - 1, page.page_number + options.window + 1)
 
-    %{
+    pages = %{
       first: Page.create(1, url(conn, fun, arguments, 1, options)),
       last: Page.create(page.total_pages, url(conn, fun, arguments, page.total_pages, options)),
       prev: if has_prev?(page) do
@@ -64,7 +64,23 @@ defmodule Scrivener.PhoenixView do
         |> add_gap(page, options)
         |> Enum.reverse()
     }
-    |> options.template.paginator(page, options)
+
+    []
+    |> options.template.add_next_page(pages, page)
+    |> options.template.add_last_page(pages, page)
+    |> add_pages(pages.pages, page, options)
+    |> Enum.reverse()
+    |> options.template.add_prev_page(pages, page)
+    |> options.template.add_first_page(pages, page)
+    |> options.template.paginator()
+  end
+
+  def add_pages(links, pages, spage = %Scrivener.Page{}, options) do
+    pages
+    |> Enum.reverse()
+    |> Enum.into(links, fn page ->
+      options.template.page(page, spage)
+    end)
   end
 
   def has_prev?(page = %Scrivener.Page{}) do

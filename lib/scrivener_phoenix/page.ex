@@ -1,6 +1,8 @@
 defmodule Scrivener.Phoenix.Page do
   defstruct ~W[no href]a
 
+  @type t :: %__MODULE__{no: non_neg_integer(), href: String.t}
+
   def create(no, href) do
     %__MODULE__{no: no, href: href}
   end
