@@ -45,37 +45,53 @@ defmodule Scrivener.PhoenixView do
     right_window_plus_one = range_as_list(page.total_pages - options.right, page.total_pages)
     inside_window_plus_each_sides = range_as_list(page.page_number - options.window - 1, page.page_number + options.window + 1)
 
-    pages = %{
-      first: Page.create(1, url(conn, fun, arguments, 1, options)),
-      last: Page.create(page.total_pages, url(conn, fun, arguments, page.total_pages, options)),
-      prev: if has_prev?(page) do
-        Page.create(page.page_number - 1, url(conn, fun, arguments, page.page_number - 1, options))
-      end,
-      next: if has_next?(page) do
-        Page.create(page.page_number + 1, url(conn, fun, arguments, page.page_number + 1, options))
-      end,
-      pages: (left_window_plus_one ++ right_window_plus_one ++ inside_window_plus_each_sides)
-        |> Enum.sort()
-        |> Enum.uniq()
-        |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
-        |> Enum.map(fn page_number ->
-          Page.create(page_number, url(conn, fun, arguments, page_number, options))
-        end)
-        |> add_gap(page, options)
-        |> Enum.reverse()
-    }
+    first_page = Page.create(1, url(conn, fun, arguments, 1, options))
+    last_page = Page.create(page.total_pages, url(conn, fun, arguments, page.total_pages, options))
+    prev_page = if has_prev?(page) do
+      Page.create(page.page_number - 1, url(conn, fun, arguments, page.page_number - 1, options))
+    end
+    next_page = if has_next?(page) do
+      Page.create(page.page_number + 1, url(conn, fun, arguments, page.page_number + 1, options))
+    end
+    window_pages = (left_window_plus_one ++ right_window_plus_one ++ inside_window_plus_each_sides)
+    |> Enum.sort()
+    |> Enum.uniq()
+    |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
+    |> Enum.map(fn page_number ->
+      Page.create(page_number, url(conn, fun, arguments, page_number, options))
+    end)
+    |> add_gap(page, options)
+    |> Enum.reverse()
 
     []
-    |> options.template.add_next_page(pages, page)
-    |> options.template.add_last_page(pages, page)
-    |> add_pages(pages.pages, page, options)
+    |> maybe_add_next_page(next_page, options)
+    |> maybe_add_last_page(last_page, page, options)
+    |> add_pages(window_pages, page, options)
     |> Enum.reverse()
-    |> options.template.add_prev_page(pages, page)
-    |> options.template.add_first_page(pages, page)
-    |> options.template.paginator()
+    |> maybe_add_prev_page(prev_page, options)
+    |> maybe_add_first_page(first_page, page, options)
+    |> options.template.wrap()
   end
 
-  def add_pages(links, pages, spage = %Scrivener.Page{}, options) do
+  defp prepend_to_list_if_not_nil(nil, list), do: list
+  defp prepend_to_list_if_not_nil(value, list) do
+    [value | list]
+  end
+
+  for sym <- ~W[first_page last_page]a do
+    defp unquote(:"maybe_add_#{sym}")(links, page, spage, options) do
+      options.template.unquote(sym)(page, spage)
+      |> prepend_to_list_if_not_nil(links)
+    end
+  end
+  for sym <- ~W[next_page prev_page]a do
+    defp unquote(:"maybe_add_#{sym}")(links, page, options) do
+      options.template.unquote(sym)(page)
+      |> prepend_to_list_if_not_nil(links)
+    end
+  end
+
+  defp add_pages(links, pages, spage, options) do
     pages
     |> Enum.reverse()
     |> Enum.into(links, fn page ->

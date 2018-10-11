@@ -19,13 +19,6 @@ defmodule Scrivener.Phoenix.Page do
   end
 
   @doc ~S"""
-  Is the page the first?
-  """
-  def first_page?(page = %__MODULE__{}) do
-    page.no == 1
-  end
-
-  @doc ~S"""
   Is the page the last?
   """
   def last_page?(page = %__MODULE__{}, spage = %Scrivener.Page{}) do
@@ -34,18 +27,6 @@ defmodule Scrivener.Phoenix.Page do
 
   def out_of_range?(page = %__MODULE__{}, spage = %Scrivener.Page{}) do
     page.no > spage.total_pages
-  end
-
-  def prev_page(page = %__MODULE__{}, spage = %Scrivener.Page{}) do
-    if !first_page?(page) && !out_of_range?(page, spage) do
-      page.no - 1
-    end
-  end
-
-  def next_page(page = %__MODULE__{}, spage = %Scrivener.Page{}) do
-    if !last_page?(page, spage) && !out_of_range?(page, spage) do
-      page.no + 1
-    end
   end
 
   def next?(page = %__MODULE__{}, spage = %Scrivener.Page{}) do

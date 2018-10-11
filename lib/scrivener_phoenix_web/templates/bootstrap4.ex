@@ -9,60 +9,61 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     msgid
   end
 
-  def first_page(page = %Page{}) do
-    content = "«"
+  def first_page(_page, %Scrivener.Page{page_number: 1}), do: nil
+  def first_page(page = %Page{}, _spage) do
     content_tag(:li, class: "page-item") do
-      #if Page.first_page?(page) do
-        #content
-      #else
-        link(content, to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "first"))
-      #end
+      link("«", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "first"))
     end
   end
 
-  def last_page(page = %Page{}) do
-    content = "»"
-    content_tag(:li, class: "page-item") do
-      #if Page.last_page?(page) do
-        #content
-      #else
-        link(content, to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "last"))
-      #end
+if false do
+  def last_page(page = %Page{}, spage = %Scrivener.Page{}) do
+    if !Page.last_page?(page, spage) do
+      content_tag(:li, class: "page-item") do
+        link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "last"))
+      end
     end
   end
+else
+  def last_page(%Page{no: no}, %Scrivener.Page{total_pages: no}), do: nil
+  def last_page(page = %Page{}, _spage) do
+    content_tag(:li, class: "page-item") do
+      link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "last"))
+    end
+  end
+end
 
+  def prev_page(nil), do: nil
   def prev_page(page = %Page{}) do
-    content = "‹"
     content_tag(:li, class: "page-item") do
-      #if Page.first_page?(page) do
-        #content
-      #else
-        link(content, to: page.href, class: "page-link", rel: "prev", title: dgettext("scrivener_phoenix", "previous"))
-      #end
+      link("‹", to: page.href, class: "page-link", rel: "prev", title: dgettext("scrivener_phoenix", "previous"))
     end
   end
 
+  def next_page(nil), do: nil
   def next_page(page = %Page{}) do
-    content = "›"
     content_tag(:li, class: "page-item") do
-      #if Page.last_page?(page) do
-        #content
-      #else
-        link(content, to: page.href, class: "page-link", rel: "next", title: dgettext("scrivener_phoenix", "next"))
-      #end
+      link("›", to: page.href, class: "page-link", rel: "next", title: dgettext("scrivener_phoenix", "next"))
     end
   end
 
-  def page(page = %Page{no: no}, %Scrivener.Page{page_number: no}) do
-    #if Page.current?(page, spage) do
+if false do
+  def page(page = %Page{}, spage = %Scrivener.Page{}) do
+    if Page.current?(page, spage) do
       content_tag(:li, class: "page-item active") do
         page.no
       end
-    #else
-      #content_tag(:li, class: "page-item") do
-        #link(page.no, to: page.href, class: "page-link")
-      #end
-    #end
+    else
+      content_tag(:li, class: "page-item") do
+        link(page.no, handle_rel(page, spage, to: page.href, class: "page-link"))
+      end
+    end
+  end
+else
+  def page(page = %Page{no: no}, %Scrivener.Page{page_number: no}) do
+    content_tag(:li, class: "page-item active") do
+      page.no
+    end
   end
 
   def page(page = %Page{}, spage = %Scrivener.Page{}) do
@@ -70,13 +71,13 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
       link(page.no, handle_rel(page, spage, to: page.href, class: "page-link"))
     end
   end
+end
 
   def page(%Gap{}, %Scrivener.Page{}) do
-    # TODO: gettext
     content_tag(:li, link("…", to: "#", class: "page-link"), class: "page-item disabled")
   end
 
-  def paginator(links) do
+  def wrap(links) do
     content_tag(:nav) do
       content_tag(:ul, class: "pagination") do
         links
