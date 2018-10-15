@@ -1,0 +1,32 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:15
+msgid "First page"
+msgstr "Première page"
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:31
+msgid "Last page"
+msgstr "Dernière page"
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:46
+msgid "Next page"
+msgstr "Page suivante"
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:39
+msgid "Previous page"
+msgstr "Page précédente"

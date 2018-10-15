@@ -1,0 +1,19 @@
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:15
+msgid "First page"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:31
+msgid "Last page"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:46
+msgid "Next page"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/templates/bootstrap4.ex:39
+msgid "Previous page"
+msgstr ""

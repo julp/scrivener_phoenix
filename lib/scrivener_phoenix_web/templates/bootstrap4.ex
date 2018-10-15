@@ -7,16 +7,12 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
   alias Scrivener.Phoenix.Gap
   alias Scrivener.Phoenix.Page
   import Scrivener.Phoenix.Page
-
-  # TODO: temporary
-  def dgettext(_domain, msgid) do
-    msgid
-  end
+  import Scrivener.Phoenix.Gettext
 
   def first_page(_page, %Scrivener.Page{page_number: 1}), do: nil
   def first_page(page = %Page{}, _spage) do
     content_tag(:li, class: "page-item") do
-      link("«", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "first"))
+      link("«", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "First page"))
     end
   end
 
@@ -24,7 +20,7 @@ if false do
   def last_page(page = %Page{}, spage = %Scrivener.Page{}) do
     if !Page.last_page?(page, spage) do
       content_tag(:li, class: "page-item") do
-        link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "last"))
+        link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "Last page"))
       end
     end
   end
@@ -32,7 +28,7 @@ else
   def last_page(%Page{no: no}, %Scrivener.Page{total_pages: no}), do: nil
   def last_page(page = %Page{}, _spage) do
     content_tag(:li, class: "page-item") do
-      link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "last"))
+      link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "Last page"))
     end
   end
 end
@@ -40,14 +36,14 @@ end
   def prev_page(nil), do: nil
   def prev_page(page = %Page{}) do
     content_tag(:li, class: "page-item") do
-      link("‹", to: page.href, class: "page-link", rel: "prev", title: dgettext("scrivener_phoenix", "previous"))
+      link("‹", to: page.href, class: "page-link", rel: "prev", title: dgettext("scrivener_phoenix", "Previous page"))
     end
   end
 
   def next_page(nil), do: nil
   def next_page(page = %Page{}) do
     content_tag(:li, class: "page-item") do
-      link("›", to: page.href, class: "page-link", rel: "next", title: dgettext("scrivener_phoenix", "next"))
+      link("›", to: page.href, class: "page-link", rel: "next", title: dgettext("scrivener_phoenix", "Next page"))
     end
   end
 

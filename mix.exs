@@ -6,6 +6,7 @@ defmodule Scrivener.Phoenix.MixProject do
       app: :scrivener_phoenix,
       version: "0.1.0",
       elixir: "~> 1.7",
+      compilers: ~W[gettext]a ++ Mix.compilers,
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -36,6 +37,7 @@ defmodule Scrivener.Phoenix.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:gettext, ">= 0.0.0"},
       {:scrivener, "~> 2.5"},
       {:phoenix_html, "~> 2.11"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false}
