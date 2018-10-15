@@ -60,7 +60,7 @@ defmodule Scrivener.Phoenix.Template do
   Example:
 
     def last_page(page = %Scrivener.Phoenix.Page{}, spage = %Scrivener.Page{}) do
-      if page.no == spage.page_number) do
+      if spage.page_number == spage.total_pages do
         content_tag(:span, "Last page", class: "current disabled")
       else
         link("Last page", to: page.href)

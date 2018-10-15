@@ -25,7 +25,7 @@ if false do
     end
   end
 else
-  def last_page(%Page{no: no}, %Scrivener.Page{total_pages: no}), do: nil
+  def last_page(%Page{}, %Scrivener.Page{page_number: no, total_pages: no}), do: nil
   def last_page(page = %Page{}, _spage) do
     content_tag(:li, class: "page-item") do
       link("»", to: page.href, class: "page-link", title: dgettext("scrivener_phoenix", "Last page"))
