@@ -1,4 +1,8 @@
 defmodule Scrivener.Phoenix.Template.Bootstrap4 do
+  @moduledoc ~S"""
+  A ready to use template for a Bootstrap4 pagination.
+  """
+
   use Scrivener.Phoenix.Template
   alias Scrivener.Phoenix.Gap
   alias Scrivener.Phoenix.Page
