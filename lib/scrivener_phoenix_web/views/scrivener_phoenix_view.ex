@@ -1,4 +1,8 @@
 defmodule Scrivener.PhoenixView do
+  @moduledoc ~S"""
+  TODO
+  """
+
   alias Scrivener.Phoenix.Gap
   alias Scrivener.Phoenix.Page
 
@@ -10,6 +14,12 @@ defmodule Scrivener.PhoenixView do
     inverted: false, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
     param_name: :page,
     template: Scrivener.Phoenix.Template.Bootstrap4,
+    #labels: %{next: "", prev: "", first: "", last: ""},
+    # VS
+    #label_next: "",
+    #label_prev: "",
+    #label_first: "",
+    #label_last: "",
   ]
 
   @doc ~S"""
@@ -61,16 +71,26 @@ defmodule Scrivener.PhoenixView do
       Page.create(page_number, url(conn, fun, arguments, page_number, options))
     end)
     |> add_gap(page, options)
-    |> Enum.reverse()
+    #|> Enum.reverse() # quand !inverted
 
-    []
-    |> maybe_add_next_page(next_page, options)
-    |> maybe_add_last_page(last_page, page, options)
-    |> add_pages(window_pages, page, options)
-    |> Enum.reverse()
-    |> maybe_add_prev_page(prev_page, options)
-    |> maybe_add_first_page(first_page, page, options)
-    |> options.template.wrap()
+    if options.inverted do
+      []
+      |> maybe_prepend_prev_page(prev_page, options)
+      |> maybe_prepend_first_page(first_page, page, options)
+      |> append_pages(window_pages, page, options)
+      |> Enum.reverse()
+      |> maybe_prepend_next_page(next_page, options)
+      |> maybe_prepend_last_page(last_page, page, options)
+    else
+      []
+      |> maybe_prepend_next_page(next_page, options)
+      |> maybe_prepend_last_page(last_page, page, options)
+      |> append_pages(window_pages, page, options)
+      |> Enum.reverse()
+      |> maybe_prepend_prev_page(prev_page, options)
+      |> maybe_prepend_first_page(first_page, page, options)
+    end
+      |> options.template.wrap()
   end
 
   defp prepend_to_list_if_not_nil(nil, list), do: list
@@ -79,19 +99,19 @@ defmodule Scrivener.PhoenixView do
   end
 
   for sym <- ~W[first_page last_page]a do
-    defp unquote(:"maybe_add_#{sym}")(links, page, spage, options) do
+    defp unquote(:"maybe_prepend_#{sym}")(links, page, spage, options) do
       options.template.unquote(sym)(page, spage)
       |> prepend_to_list_if_not_nil(links)
     end
   end
   for sym <- ~W[next_page prev_page]a do
-    defp unquote(:"maybe_add_#{sym}")(links, page, options) do
+    defp unquote(:"maybe_prepend_#{sym}")(links, page, options) do
       options.template.unquote(sym)(page)
       |> prepend_to_list_if_not_nil(links)
     end
   end
 
-  defp add_pages(links, pages, spage, options) do
+  defp append_pages(links, pages, spage, options) do
     pages
     |> Enum.reverse()
     |> Enum.into(links, fn page ->
