@@ -17,3 +17,23 @@ msgstr ""
 #: lib/scrivener_phoenix_web/templates/bootstrap4.ex:39
 msgid "Previous page"
 msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:19
+msgid "First"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:22
+msgid "Last"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:21
+msgid "Next"
+msgstr ""
+
+#, elixir-format
+#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:20
+msgid "Prev"
+msgstr ""

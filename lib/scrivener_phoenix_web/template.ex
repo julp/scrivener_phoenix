@@ -44,22 +44,22 @@ defmodule Scrivener.Phoenix.Template do
   Example:
 
     # no output if the first page is the current one
-    def first_page(_page, %Scrivener.Page{page_number: 1}), do: nil
+    def first_page(_page, %Scrivener.Page{page_number: 1}, _options), do: nil
 
-    def first_page(page = %%Scrivener.Phoenix.Page{}, _spage) do
+    def first_page(page = %%Scrivener.Phoenix.Page{}, _spage, _options) do
     content_tag(:li) do
       link("First page", to: page.href)
     end
   end
   """
-  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t) :: Phoenix.HTML.safe() | nil
+  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, map) :: Phoenix.HTML.safe() | nil
 
   @doc ~S"""
   Callback to generate HTML of the last page or to skip it by returning `nil`.
 
   Example:
 
-    def last_page(page = %Scrivener.Phoenix.Page{}, spage = %Scrivener.Page{}) do
+    def last_page(page = %Scrivener.Phoenix.Page{}, spage = %Scrivener.Page{}, _options) do
       if spage.page_number == spage.total_pages do
         content_tag(:span, "Last page", class: "current disabled")
       else
@@ -67,17 +67,17 @@ defmodule Scrivener.Phoenix.Template do
       end
     end
   """
-  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t) :: Phoenix.HTML.safe() | nil
+  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, map) :: Phoenix.HTML.safe() | nil
 
   @doc ~S"""
   Callback to generate HTML of the previous page or to skip it by returning `nil`.
   """
-  @callback prev_page(Scrivener.Phoenix.Page.t) :: Phoenix.HTML.safe() | nil
+  @callback prev_page(Scrivener.Phoenix.Page.t, map) :: Phoenix.HTML.safe() | nil
 
   @doc ~S"""
   Callback to generate HTML of the next page or to skip it by returning `nil`.
   """
-  @callback next_page(Scrivener.Phoenix.Page.t) :: Phoenix.HTML.safe() | nil
+  @callback next_page(Scrivener.Phoenix.Page.t, map) :: Phoenix.HTML.safe() | nil
 
   defmacro __using__(_options) do
     quote do

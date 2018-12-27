@@ -6,7 +6,13 @@ Helper to render a [Scrivener](https://hex.pm/packages/scrivener) pagination for
 
 ### Inverted pagination
 
-~~In a standard pagination, the first page contains the lastest content. This package provides an option for an inverted pagination where the first page contains the oldest content.~~
+In a standard pagination, the first page contains the lastest content:
+
+`« First ‹ Prev ... 2 3 4 5 6 7 8 9 10 ... Next › Last »`
+
+This package provides an option for an inverted pagination where the first page contains the oldest content:
+
+`« Last ‹ Next ... 10 9 8 7 6 5 4 3 2 ... Prev › First »`
 
 ## Installation
 
@@ -15,6 +21,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 ```elixir
 def deps do
   [
+    # ...
     {:scrivener_phoenix, "~> 0.1.0"}
   ]
 end
@@ -39,12 +46,14 @@ config :scrivener_phoenix,
 
 (these are the defaults and can be omitted)
 
-* left (default: `0`): TODO
-* right (default: `0`): TODO
-* outer_window (default: `0`): TODO
-* ~~inverted (default: `false`): TODO~~
+* left (default: `0`): display the *left* first pages
+* right (default: `0`): display the *right* last pages
+* outer_window (default: `0`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2: `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
+* inverted (default: `false`): see **Inverted pagination** above
 * param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
 * template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
+* symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): TODO
+* labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`): TODO
 
 ## Usage
 
@@ -160,3 +169,5 @@ The arity becomes `/4` with the additionnal :page parameter:
 2. the action (:index)
 3. the page
 4. the additionnal (and facultative) parameters to add in query string
+
+TL;DR: for arity, add 3 to the length of the list you pass as parameters if page number is a parameter to your route else 2 (and the page number will be part of the query string)
