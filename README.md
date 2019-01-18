@@ -27,7 +27,7 @@ def deps do
 end
 ```
 
-~~Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.pm/scrivener_phoenix).~~
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.pm/scrivener_phoenix).
 
 ## Configuration
 
@@ -48,12 +48,13 @@ config :scrivener_phoenix,
 
 * left (default: `0`): display the *left* first pages
 * right (default: `0`): display the *right* last pages
+* window (default: `4`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
 * outer_window (default: `0`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2: `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
 * inverted (default: `false`): see **Inverted pagination** above
 * param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
 * template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
-* symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): TODO
-* labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`): TODO
+* symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
+* labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`): the texts used by links to describe the first, previous, next and last page
 
 ## Usage
 
