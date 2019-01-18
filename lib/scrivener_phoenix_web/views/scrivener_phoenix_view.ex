@@ -1,34 +1,36 @@
 defmodule Scrivener.PhoenixView do
   @moduledoc ~S"""
-  TODO
+  The module which provides the helper to generate links for a Scrivener pagination.
   """
 
   alias Scrivener.Phoenix.Gap
   alias Scrivener.Phoenix.Page
   import Scrivener.Phoenix.Gettext
 
-  @defaults [
-    left: 0,
-    right: 0,
-    window: 4,
-    outer_window: 0,
-    inverted: false, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
-    param_name: :page,
-    template: Scrivener.Phoenix.Template.Bootstrap4,
-    labels: %{
-        first: dgettext("scrivener_phoenix", "First"), # TODO: can't use dgexttext here
-        prev: dgettext("scrivener_phoenix", "Prev"), # TODO: can't use dgexttext here
-        next: dgettext("scrivener_phoenix", "Next"), # TODO: can't use dgexttext here
-        last: dgettext("scrivener_phoenix", "Last"), # TODO: can't use dgexttext here
-    },
-    symbols: %{
-        first: "«",
-        prev: "‹",
-        next: "›",
-        last: "»",
-        #gap: "…",
-    },
-  ]
+  defp defaults do
+    [
+      left: 0,
+      right: 0,
+      window: 4,
+      outer_window: 0,
+      inverted: false, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
+      param_name: :page,
+      template: Scrivener.Phoenix.Template.Bootstrap4,
+      labels: %{
+          first: dgettext("scrivener_phoenix", "First"),
+          prev: dgettext("scrivener_phoenix", "Prev"),
+          next: dgettext("scrivener_phoenix", "Next"),
+          last: dgettext("scrivener_phoenix", "Last"),
+      },
+      symbols: %{
+          first: "«",
+          prev: "‹",
+          next: "›",
+          last: "»",
+          #gap: "…",
+      },
+    ]
+  end
 
   @doc ~S"""
   options:
@@ -58,8 +60,8 @@ defmodule Scrivener.PhoenixView do
     # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
     # def blog_page_path(conn_or_endpoint, action, pageno, options \\ [])
 
-    # (@)defaults < config (Applicaton) < options
-    options = @defaults
+    # defaults() < config (Applicaton) < options
+    options = defaults()
     |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
     |> Keyword.merge(options)
     |> Enum.into(%{})
