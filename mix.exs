@@ -6,7 +6,7 @@ defmodule Scrivener.Phoenix.MixProject do
       app: :scrivener_phoenix,
       version: "0.1.0",
       elixir: "~> 1.7",
-      compilers: ~W[gettext]a ++ Mix.compilers,
+      compilers: ~W[gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
