@@ -61,11 +61,12 @@ defmodule Scrivener.PhoenixView do
     # def blog_page_path(conn_or_endpoint, action, pageno, options \\ [])
 
     # defaults() < config (Applicaton) < options
-    options = defaults()
-    |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
-    |> Keyword.merge(options)
-    |> Enum.into(%{})
-    |> adjust_symbols_if_needed()
+    options =
+      defaults()
+      |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
+      |> Keyword.merge(options)
+      |> Enum.into(%{})
+      |> adjust_symbols_if_needed()
 
     map = %{
       first: options.inverted,
@@ -76,10 +77,11 @@ defmodule Scrivener.PhoenixView do
 
     options = %{options | labels: options.labels
       |> Enum.reduce(options.labels, fn {k, v}, acc ->
-        label = [v]
-        |> List.insert_at(bool_to_int(map[k]), options.symbols[k])
-        |> Enum.join(" ")
-        |> String.trim()
+        label =
+          [v]
+          |> List.insert_at(bool_to_int(map[k]), options.symbols[k])
+          |> Enum.join(" ")
+          |> String.trim()
         Map.put(acc, k, label)
       end)
     }
@@ -96,15 +98,18 @@ defmodule Scrivener.PhoenixView do
     next_page = if has_next?(page) do
       Page.create(page.page_number + 1, url(conn, fun, arguments, page.page_number + 1, options))
     end
-    window_pages = (left_window_plus_one ++ right_window_plus_one ++ inside_window_plus_each_sides)
-    |> Enum.sort()
-    |> Enum.uniq()
-    |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
-    |> Enum.map(fn page_number ->
-      Page.create(page_number, url(conn, fun, arguments, page_number, options))
-    end)
-    |> add_gap(page, options)
-    |> reverse_links_if_not_inversed(options)
+    window_pages =
+      (left_window_plus_one ++ right_window_plus_one ++ inside_window_plus_each_sides)
+      |> Enum.sort()
+      |> Enum.uniq()
+      |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
+      |> Enum.map(
+        fn page_number ->
+          Page.create(page_number, url(conn, fun, arguments, page_number, options))
+        end
+      )
+      |> add_gap(page, options)
+      |> reverse_links_if_not_inversed(options)
 
     []
     |> prepend_right_links(page, first_page, prev_page, next_page, last_page, options)
@@ -156,12 +161,14 @@ defmodule Scrivener.PhoenixView do
   end
 
   defp maybe_prepend(links, fun, page, options) do
-    fun.(page, options)
+    page
+    |> fun.(options)
     |> prepend_to_list_if_not_nil(links)
   end
 
   defp maybe_prepend(links, fun, page, spage, options) do
-    fun.(page, spage, options)
+    page
+    |> fun.(spage, options)
     |> prepend_to_list_if_not_nil(links)
   end
 
@@ -238,9 +245,10 @@ defmodule Scrivener.PhoenixView do
   defp handle_arguments(conn, arity, helper_arguments, page_number, options)
     when arity == length(helper_arguments) + 2 # 2 for (not counted) conn + additionnal parameters (query string)
   do
-    query_params = conn.query_params
-    |> Map.put(options.param_name, page_number)
-    |> map_to_keyword()
+    query_params =
+      conn.query_params
+      |> Map.put(options.param_name, page_number)
+      |> map_to_keyword()
 
     [conn | helper_arguments] ++ [query_params]
   end
