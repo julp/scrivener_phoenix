@@ -22,7 +22,8 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 def deps do
   [
     # ...
-    {:scrivener_phoenix, "~> 0.1.0"}
+    {:scrivener_ecto, "~> 2.0"},
+    {:scrivener_phoenix, "~> 0.1.0"},
   ]
 end
 ```
@@ -58,7 +59,9 @@ config :scrivener_phoenix,
 
 ## Usage
 
-In your view(s), add:
+In your Repo (the file is probably lib/your_app/repo.ex), add `use Scrivener`
+
+In concerned views, add:
 
 ```elixir
 import Scrivener.PhoenixView
@@ -79,7 +82,7 @@ defmodule YourAppWeb do
 end
 ```
 
-(or use `Scrivener.PhoenixView.paginate` instead of just `paginate` in your templates)
+(a third solution is to directly use `Scrivener.PhoenixView.paginate` instead of just `paginate` in your templates)
 
 In your context, the resultset of your query is paginated with scrivener:
 
@@ -88,7 +91,7 @@ defmodule MyApp.Blog do
   def posts_at_page(page) do
     MyApp.Post
     |> order_by(:created_at)
-    |> Repo.paginate(page: page) # <= this line is your scrivener pagination
+    |> Repo.paginate(page: page) # <= this line is your scrivener pagination (probably replace a previous `|> Repo.all()`)
   end
 end
 ```
@@ -97,9 +100,10 @@ Then, in your controller, assign it to the view:
 
 ```elixir
 def index(conn, params) do
-  posts = params
-  |> Map.get(:page, 1)
-  |> Blog.posts_at_page()
+  posts =
+    params
+    |> Map.get(:page, 1)
+    |> Blog.posts_at_page()
 
   conn
   |> assign(:posts, posts)

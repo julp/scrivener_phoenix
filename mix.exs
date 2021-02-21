@@ -23,7 +23,14 @@ defmodule Scrivener.Phoenix.MixProject do
   end
 
   defp description() do
-    "Helper to render scrivener paginations in phoenix"
+    ~S"""
+    Helper to render scrivener paginations in phoenix.
+
+    Features:
+
+      * reversed pagination (`3 2 1` instead of traditional `1 2 3`)
+      * *page* parameter can be directly passed through URL's path (ie be part of your route, eg: /blog/page/3 instead of /blog/?page=3)
+    """
   end
 
   defp package() do
