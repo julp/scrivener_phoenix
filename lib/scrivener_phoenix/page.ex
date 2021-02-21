@@ -11,7 +11,7 @@ defmodule Scrivener.Phoenix.Page do
     %__MODULE__{no: no, href: href}
   end
 
-  def handle_rel(page = %__MODULE__{}, spage = %Scrivener.Page{}, attributes) do
+  def handle_rel(page = %__MODULE__{}, spage = %Scrivener.Page{}, attributes \\ []) do
     cond do
       page.no == spage.page_number + 1 ->
         Keyword.put(attributes, :rel, "next")
