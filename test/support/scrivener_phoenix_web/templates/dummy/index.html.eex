@@ -1,0 +1,1 @@
+<%= Scrivener.PhoenixView.paginate @conn, @entries, @function, @params, @options %>

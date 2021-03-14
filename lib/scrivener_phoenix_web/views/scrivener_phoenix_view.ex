@@ -32,6 +32,8 @@ defmodule Scrivener.PhoenixView do
     ]
   end
 
+  @typep conn_or_endpoint :: Plug.Conn.t | module
+
   @doc ~S"""
   options:
   - template
@@ -43,13 +45,13 @@ defmodule Scrivener.PhoenixView do
   - template
   - param_name
   """
-  @spec paginate(conn :: Plug.Conn.t, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe()
+  @spec paginate(conn :: conn_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
   def paginate(conn, page, fun, arguments \\ [], options \\ [])
 
   # skip pagination if there is a single page
-  def paginate(%Plug.Conn{}, %Scrivener.Page{total_pages: 1}, _fun, _arguments, _options), do: nil
+  def paginate(_conn, %Scrivener.Page{total_pages: 1}, _fun, _arguments, _options), do: nil
 
-  def paginate(conn = %Plug.Conn{}, page = %Scrivener.Page{}, fun, arguments, options)
+  def paginate(conn, page = %Scrivener.Page{}, fun, arguments, options)
     when is_function(fun)
   do
     # if length(arguments) > arity(fun)
@@ -58,7 +60,7 @@ defmodule Scrivener.PhoenixView do
     #   it has to be integrated to the query string
     # fi
     # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
-    # def blog_page_path(conn_or_endpoint, action, pageno, options \\ [])
+    # def blog_page_path(conn, action, pageno, options \\ [])
 
     # defaults() < config (Applicaton) < options
     options =
@@ -180,10 +182,12 @@ defmodule Scrivener.PhoenixView do
     end)
   end
 
+  @spec has_prev?(page :: Scrivener.Page.t) :: boolean
   def has_prev?(page = %Scrivener.Page{}) do
     page.page_number > 1
   end
 
+  @spec has_next?(page :: Scrivener.Page.t) :: boolean
   def has_next?(page = %Scrivener.Page{}) do
     page.page_number < page.total_pages
   end
@@ -213,11 +217,14 @@ defmodule Scrivener.PhoenixView do
     do_add_gap(pages, [], page, options)
   end
 
+  @spec range_as_list(l :: integer, h :: integer) :: [integer]
   defp range_as_list(l, h) do
-    Range.new(l, h)
+    l
+    |> Range.new(h)
     |> Enum.to_list()
   end
 
+  @spec map_to_keyword(map :: map) :: Keyword.t
   defp map_to_keyword(map = %{}) do
     map
     |> Enum.into([])
@@ -226,30 +233,48 @@ defmodule Scrivener.PhoenixView do
   defp bool_to_int(true), do: 1
   defp bool_to_int(false), do: 0
 
-  defp url(conn = %Plug.Conn{}, fun, helper_arguments, page_number, options) do
+  defp url(conn, fun, helper_arguments, page_number, options) do
     {:arity, arity} = :erlang.fun_info(fun, :arity)
     arguments = handle_arguments(conn, arity, helper_arguments, page_number, options)
     apply(fun, arguments)
   end
 
+  @spec query_params(conn_or_endpoint :: conn_or_endpoint) :: map
+  defp query_params(conn = %Plug.Conn{}) do
+    conn = Plug.Conn.fetch_query_params(conn)
+    conn.query_params
+    # TODO: white list parameters to keep? (Map.take/2)
+  end
+
+  defp query_params(endpoint)
+    when is_atom(endpoint)
+  do
+    %{}
+  end
+
   # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
-  defp handle_arguments(conn, arity, helper_arguments, page_number, _options)
+  defp handle_arguments(conn, arity, helper_arguments, page_number, options)
     when arity == length(helper_arguments) + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
   do
-    # remove any potential page argument?
-    # conn.query_params |> Map.delete(options.param_name) |> map_to_keyword()
-    [conn | helper_arguments] ++ [page_number, map_to_keyword(conn.query_params)]
+    new_query_params =
+      conn
+      |> query_params()
+      |> Map.delete(options.param_name)
+      |> map_to_keyword()
+
+    [conn | helper_arguments] ++ [page_number, new_query_params]
   end
 
   # else integrate page_number as query string
   defp handle_arguments(conn, arity, helper_arguments, page_number, options)
     when arity == length(helper_arguments) + 2 # 2 for (not counted) conn + additionnal parameters (query string)
   do
-    query_params =
-      conn.query_params
+    new_query_params =
+      conn
+      |> query_params()
       |> Map.put(options.param_name, page_number)
       |> map_to_keyword()
 
-    [conn | helper_arguments] ++ [query_params]
+    [conn | helper_arguments] ++ [new_query_params]
   end
 end

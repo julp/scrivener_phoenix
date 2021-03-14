@@ -1,17 +1,32 @@
 defmodule Scrivener.Phoenix.MixProject do
   use Mix.Project
 
+  defp elixirc_paths(:test), do: ~W[lib test/support]
+  defp elixirc_paths(_), do: ~W[lib]
+
+  defp compilers(:test), do: ~W[phoenix gettext]a ++ Mix.compilers()
+  defp compilers(_), do: ~W[gettext]a ++ Mix.compilers()
+
   def project do
     [
       app: :scrivener_phoenix,
       version: "0.1.0",
       elixir: "~> 1.7",
-      compilers: ~W[gettext]a ++ Mix.compilers(),
+      compilers: compilers(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
       deps: deps(),
-      source_url: "https://github.com/julp/scrivener_phoenix"
+      source_url: "https://github.com/julp/scrivener_phoenix",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -47,7 +62,12 @@ defmodule Scrivener.Phoenix.MixProject do
       {:gettext, ">= 0.0.0"},
       {:scrivener, "~> 2.5"},
       {:phoenix_html, "~> 2.11"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      # test
+      {:jason, "~> 1.2", only: :test},
+      {:phoenix, "~> 1.5", only: :test},
+      {:excoveralls, "~> 0.13", only: :test},
+      {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
     ]
   end
 end

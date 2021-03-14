@@ -150,6 +150,8 @@ The `/3` arity stands for:
 2. the action (:index)
 3. the additionnal (and facultative) parameters to add in query string (where the *page* parameter will be injected)
 
+Because Phoenix defines the corresponding *path helper* this way: `def blog_path(conn_or_endpoint, action = :index, query_params \\ [])`
+
 But the *page* parameter can also be included in the path of the URL instead of the query string (eg /blog/page/1), like this:
 
 ```elixir
@@ -174,5 +176,7 @@ The arity becomes `/4` with the additionnal :page parameter:
 2. the action (:index)
 3. the page
 4. the additionnal (and facultative) parameters to add in query string
+
+In this case, the corresponding *path helper* is defined as: `def blog_page_path(conn_or_endpoint, action = :index, page, query_params \\ [])`
 
 TL;DR: for arity, add 3 to the length of the list you pass as parameters if page number is a parameter to your route else 2 (and the page number will be part of the query string)

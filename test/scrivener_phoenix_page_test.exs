@@ -1,12 +1,15 @@
-defmodule Scrivener.PhoenixPageTest do
+defmodule Scrivener.Phoenix.PageTest do
   use ExUnit.Case
-  doctest Scrivener.Phoenix
   alias Scrivener.Phoenix.Page
 
   setup_all do
     first = %Scrivener.Page{entries: [], page_number: 1, page_size: 10, total_entries: 28, total_pages: 3}
     last = %{first | page_number: 3}
-    {:ok, [first: first, last: last, single: %Scrivener.Page{entries: [], page_number: 1, page_size: 10, total_entries: 8, total_pages: 1}]}
+    [
+      first: first,
+      last: last,
+      single: %Scrivener.Page{entries: [], page_number: 1, page_size: 10, total_entries: 8, total_pages: 1},
+    ]
   end
 
   def create_page(no)
