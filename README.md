@@ -42,6 +42,7 @@ config :scrivener_phoenix,
   outer_window: 0,
   inverted: false,
   param_name: :page,
+  merge_params: false,
   template: Scrivener.Phoenix.Template.Bootstrap4
 ```
 
@@ -53,6 +54,7 @@ config :scrivener_phoenix,
 * outer_window (default: `0`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2: `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
 * inverted (default: `false`): see **Inverted pagination** above
 * param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
+* merge_params (default: `false`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
 * template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
 * symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
 * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`): the texts used by links to describe the first, previous, next and last page
@@ -86,12 +88,13 @@ end
 
 In your context, the resultset of your query is paginated with scrivener:
 
-```elixir
+```diff
 defmodule MyApp.Blog do
   def posts_at_page(page) do
     MyApp.Post
     |> order_by(:created_at)
-    |> Repo.paginate(page: page) # <= this line is your scrivener pagination (probably replace a previous `|> Repo.all()`)
+-   |> Repo.all()
++   |> Repo.paginate(page: page) # <= this line is your scrivener pagination
   end
 end
 ```

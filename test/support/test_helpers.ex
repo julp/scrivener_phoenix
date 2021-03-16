@@ -27,4 +27,9 @@ defmodule ScrivenerPhoenix.TestHelpers do
       end
     )
   end
+
+  @spec contains_link?(response :: String.t, url :: String.t) :: boolean
+  def contains_link?(response, url) do
+    response =~ Enum.join(["href=\"", Plug.HTML.html_escape(url), "\""])
+  end
 end

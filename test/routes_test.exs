@@ -19,49 +19,43 @@ defmodule Scrivener.Phoenix.RoutesTest do
   @endpoint ScrivenerPhoenixTestWeb.Endpoint
   # MIX_ENV=test mix phx.routes ScrivenerPhoenixTestWeb.Router
   describe "ensures path are properly generated from a %Plug.Conn{} or endpoint" do
-    test "blog_post_path/3", %{conn: conn, entries: entries} do
+    test "blog_post_(path|url)/3", %{conn: conn, entries: entries} do
       for conn_or_endpoint <- [conn, @endpoint] do
         render(conn_or_endpoint, entries, &Routes.blog_post_path/3, [:index], param_name: :seite)
-        |> (& assert &1 =~ ~S|href="/blog/posts?seite=2"|).()
+        |> (& assert contains_link?(&1, "/blog/posts?seite=2")).()
 
         render(conn_or_endpoint, entries, &Routes.blog_post_url/3, [:index], param_name: :seite)
-        |> (& assert &1 =~ ~s|href="#{@url}/blog/posts?seite=2"|).()
+        |> (& assert contains_link?(&1, "#{@url}/blog/posts?seite=2")).()
       end
     end
 
-    test "blog_seite_path/4", %{conn: conn, entries: entries} do
+    test "blog_seite_(path|url)/4", %{conn: conn, entries: entries} do
       for conn_or_endpoint <- [conn, @endpoint] do
         render(conn_or_endpoint, entries, &Routes.blog_seite_path/4, [:index])
-        |> (& assert &1 =~ ~S|href="/blog/posts/seite/2"|).()
+        |> (& assert contains_link?(&1, "/blog/posts/seite/2")).()
 
         render(conn_or_endpoint, entries, &Routes.blog_seite_url/4, [:index])
-        |> (& assert &1 =~ ~s|href="#{@url}/blog/posts/seite/2"|).()
+        |> (& assert contains_link?(&1, "#{@url}/blog/posts/seite/2")).()
       end
     end
 
-    test "forum_topic_path/4", %{conn: conn, entries: entries} do
+    test "forum_topic_(path|url)/4", %{conn: conn, entries: entries} do
       for conn_or_endpoint <- [conn, @endpoint] do
         render(conn_or_endpoint, entries, &Routes.forum_topic_path/4, [:show, 643])
-        |> (& assert &1 =~ ~S|href="/forum/topics/643?page=2"|).()
+        |> (& assert contains_link?(&1, "/forum/topics/643?page=2")).()
 
         render(conn_or_endpoint, entries, &Routes.forum_topic_url/4, [:show, 643])
-        |> (& assert &1 =~ ~s|href="#{@url}/forum/topics/643?page=2"|).()
-
-        #render(conn, entries, &Routes.forum_topic_path/4, [:show, 643, [:foo, "bar"]])
-        #|> (& assert &1 =~ ~S|href="/forum/topics/643?page=2&foo=bar"|).()
+        |> (& assert contains_link?(&1, "#{@url}/forum/topics/643?page=2")).()
       end
     end
 
-    test "forum_topic_page_path/5", %{conn: conn, entries: entries} do
+    test "forum_topic_page_(path|url)/5", %{conn: conn, entries: entries} do
       for conn_or_endpoint <- [conn, @endpoint] do
         render(conn_or_endpoint, entries, &Routes.forum_topic_page_path/5, [:show, 564])
-        |> (& assert &1 =~ ~S|href="/forum/topics/564/page/2"|).()
+        |> (& assert contains_link?(&1, "/forum/topics/564/page/2")).()
 
         render(conn_or_endpoint, entries, &Routes.forum_topic_page_url/5, [:show, 564])
-        |> (& assert &1 =~ ~s|href="#{@url}/forum/topics/564/page/2"|).()
-
-        #render(conn, entries, &Routes.forum_topic_page_path/5, [:show, 564, [search: "spaghetti"]])
-        #|> (& assert &1 =~ ~S|href="/forum/topics/564/page/2?search=spaghetti"|).()
+        |> (& assert contains_link?(&1, "#{@url}/forum/topics/564/page/2")).()
       end
     end
   end

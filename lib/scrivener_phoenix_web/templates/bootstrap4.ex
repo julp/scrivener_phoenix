@@ -23,12 +23,14 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     |> li_wrap(parent_options)
   end
 
+  @impl Scrivener.Phoenix.Template
   def first_page(_page, %Scrivener.Page{page_number: 1}, %{}), do: nil
 
   def first_page(page = %Page{}, _spage, options = %{}) do
     build_element(options.labels.first, page.href, title: dgettext("scrivener_phoenix", "First page"))
   end
 
+  @impl Scrivener.Phoenix.Template
   if false do
     def last_page(page = %Page{}, spage = %Scrivener.Page{}, options = %{}) do
       unless Page.last_page?(page, spage) do
@@ -43,18 +45,21 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     end
   end
 
+  @impl Scrivener.Phoenix.Template
   def prev_page(nil, %{}), do: nil
 
   def prev_page(page = %Page{}, options = %{}) do
     build_element(options.labels.prev, page.href, title: dgettext("scrivener_phoenix", "Previous page"), rel: "prev")
   end
 
+  @impl Scrivener.Phoenix.Template
   def next_page(nil, %{}), do: nil
 
   def next_page(page = %Page{}, options = %{}) do
     build_element(options.labels.next, page.href, title: dgettext("scrivener_phoenix", "Next page"), rel: "next")
   end
 
+  @impl Scrivener.Phoenix.Template
   if false do
     def page(page = %Page{}, spage = %Scrivener.Page{}) do
       if Page.current?(page, spage) do
@@ -77,6 +82,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
     build_element("…", "#", [], class: "disabled")
   end
 
+  @impl Scrivener.Phoenix.Template
   def wrap(links) do
     content_tag(:nav) do
       content_tag(:ul, class: "pagination") do

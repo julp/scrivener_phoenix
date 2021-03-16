@@ -7,15 +7,25 @@ defmodule Scrivener.PhoenixView do
   alias Scrivener.Phoenix.Page
   import Scrivener.Phoenix.Gettext
 
+  @default_left 0
+  @default_right 0
+  @default_window 4
+  @default_outer_window 0
+  @default_inverted false
+  @default_param_name :page
+  @default_merge_params false
+  @default_template Scrivener.Phoenix.Template.Bootstrap4
+
   defp defaults do
     [
-      left: 0,
-      right: 0,
-      window: 4,
-      outer_window: 0,
-      inverted: false, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
-      param_name: :page,
-      template: Scrivener.Phoenix.Template.Bootstrap4,
+      left: @default_left,
+      right: @default_right,
+      window: @default_window,
+      outer_window: @default_outer_window,
+      inverted: @default_inverted, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
+      param_name: @default_param_name,
+      merge_params: @default_merge_params,
+      template: @default_template,
       labels: %{
           first: dgettext("scrivener_phoenix", "First"),
           prev: dgettext("scrivener_phoenix", "Prev"),
@@ -33,17 +43,47 @@ defmodule Scrivener.PhoenixView do
   end
 
   @typep conn_or_endpoint :: Plug.Conn.t | module
+  #@typep options :: %{optional(atom) => any}
+  @typep options :: %{
+    left: non_neg_integer,
+    right: non_neg_integer,
+    window: non_neg_integer,
+    outer_window: non_neg_integer,
+    inverted: boolean,
+    param_name: atom | String.t,
+    merge_params: boolean | [atom | String.t],
+    template: module,
+    labels: %{
+      first: String.t,
+      prev: String.t,
+      next: String.t,
+      last: String.t,
+    },
+    symbols: %{
+      first: String.t,
+      prev: String.t,
+      next: String.t,
+      last: String.t,
+    },
+  }
 
-  @doc ~S"""
-  options:
-  - template
-  - left
-  - right
-  - window
-  - outer_window
-  - inverted
-  - template
-  - param_name
+  @doc """
+  Generates the whole HTML to navigate between pages.
+
+  Options:
+
+    * left (default: `#{inspect(@default_left)}`): display the *left* first pages
+    * right (default: `#{inspect(@default_right)}`): display the *right* last pages
+    * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
+    * outer_window (default: `#{inspect(@default_outer_window)}`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2:
+      `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
+    * inverted (default: `#{inspect(@default_inverted)}`): `true` to first (left side) link last pages instead of first
+    * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
+    * merge_params (default: `#{inspect(@default_merge_params)}`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
+    * template (default: `#{inspect(@default_template)}`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
+    * symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
+    * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`):
+      the texts used by links to describe the first, previous, next and last page
   """
   @spec paginate(conn :: conn_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
   def paginate(conn, page, fun, arguments \\ [], options \\ [])
@@ -233,20 +273,36 @@ defmodule Scrivener.PhoenixView do
   defp bool_to_int(true), do: 1
   defp bool_to_int(false), do: 0
 
-  defp url(conn, fun, helper_arguments, page_number, options) do
+  @doc false # public for testing
+  def url(conn, fun, helper_arguments, page_number, options) do
     {:arity, arity} = :erlang.fun_info(fun, :arity)
     arguments = handle_arguments(conn, arity, helper_arguments, page_number, options)
     apply(fun, arguments)
   end
 
-  @spec query_params(conn_or_endpoint :: conn_or_endpoint) :: map
-  defp query_params(conn = %Plug.Conn{}) do
-    conn = Plug.Conn.fetch_query_params(conn)
-    conn.query_params
-    # TODO: white list parameters to keep? (Map.take/2)
+  @spec filter_params(params :: map, options :: options) :: map
+  defp filter_params(params, %{merge_params: true}) do
+    params
   end
 
-  defp query_params(endpoint)
+  defp filter_params(params, %{merge_params: which})
+    when is_list(which)
+  do
+    Map.take(params, which |> Enum.map(&to_string/1))
+  end
+
+  @spec query_params(conn_or_endpoint :: conn_or_endpoint, options :: options) :: map
+  defp query_params(%Plug.Conn{}, %{merge_params: false}) do
+    %{}
+  end
+
+  defp query_params(conn = %Plug.Conn{}, options) do
+    conn = Plug.Conn.fetch_query_params(conn)
+    conn.query_params
+    |> filter_params(options)
+  end
+
+  defp query_params(endpoint, _options)
     when is_atom(endpoint)
   do
     %{}
@@ -258,8 +314,8 @@ defmodule Scrivener.PhoenixView do
   do
     new_query_params =
       conn
-      |> query_params()
-      |> Map.delete(options.param_name)
+      |> query_params(options)
+      |> Map.delete(to_string(options.param_name))
       |> map_to_keyword()
 
     [conn | helper_arguments] ++ [page_number, new_query_params]
@@ -271,7 +327,7 @@ defmodule Scrivener.PhoenixView do
   do
     new_query_params =
       conn
-      |> query_params()
+      |> query_params(options)
       |> Map.put(options.param_name, page_number)
       |> map_to_keyword()
 
