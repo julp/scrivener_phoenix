@@ -37,7 +37,7 @@ defmodule Scrivener.Phoenix.MixProject do
     ]
   end
 
-  defp description() do
+  defp description do
     ~S"""
     Helper to render scrivener paginations in phoenix.
 
@@ -48,7 +48,7 @@ defmodule Scrivener.Phoenix.MixProject do
     """
   end
 
-  defp package() do
+  defp package do
     [
       files: ["lib", "priv", "mix.exs", "README*"],
       licenses: ["BSD"],
