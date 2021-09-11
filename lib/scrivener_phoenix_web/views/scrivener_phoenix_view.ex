@@ -102,7 +102,7 @@ defmodule Scrivener.PhoenixView do
     # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
     # def blog_page_path(conn, action, pageno, options \\ [])
 
-    # defaults() < config (Applicaton) < options
+    # defaults() < config (Application) < options
     options =
       defaults()
       |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
