@@ -141,7 +141,9 @@ defmodule Scrivener.PhoenixView do
       Page.create(page.page_number + 1, url(conn, fun, arguments, page.page_number + 1, options))
     end
     window_pages =
-      (left_window_plus_one ++ right_window_plus_one ++ inside_window_plus_each_sides)
+      left_window_plus_one
+      |> Kernel.++(right_window_plus_one)
+      |> Kernel.++(inside_window_plus_each_sides)
       |> Enum.sort()
       |> Enum.uniq()
       |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
