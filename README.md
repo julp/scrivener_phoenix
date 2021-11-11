@@ -23,7 +23,7 @@ def deps do
   [
     # ...
     {:scrivener_ecto, "~> 2.7"},
-    {:scrivener_phoenix, "~> 0.2.0"},
+    {:scrivener_phoenix, "~> 0.2.1"},
   ]
 end
 ```
