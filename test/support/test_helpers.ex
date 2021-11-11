@@ -32,4 +32,9 @@ defmodule ScrivenerPhoenix.TestHelpers do
   def contains_link?(response, url) do
     response =~ Enum.join(["href=\"", Plug.HTML.html_escape(url), "\""])
   end
+
+  @spec render(conn :: Plug.Conn.t | module, entries :: Scrivener.Page.t, function :: function, params :: list, options :: Keyword.t) :: String.t
+  def render(conn, entries = %Scrivener.Page{}, function, params, options \\ []) do
+    Phoenix.View.render_to_string(ScrivenerPhoenixTestWeb.DummyView, "index.html", binding())
+  end
 end

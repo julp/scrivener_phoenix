@@ -16,19 +16,19 @@ This package provides an option for an inverted pagination where the first page 
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed by adding `scrivener_phoenix` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `scrivener_phoenix` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
     # ...
-    {:scrivener_ecto, "~> 2.0"},
-    {:scrivener_phoenix, "~> 0.1.0"},
+    {:scrivener_ecto, "~> 2.7"},
+    {:scrivener_phoenix, "~> 0.2.0"},
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.pm/scrivener_phoenix).
+The docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.pm/scrivener_phoenix).
 
 ## Configuration
 
@@ -43,6 +43,7 @@ config :scrivener_phoenix,
   inverted: false,
   param_name: :page,
   merge_params: false,
+  display_if_single: false,
   template: Scrivener.Phoenix.Template.Bootstrap4
 ```
 
@@ -53,6 +54,7 @@ config :scrivener_phoenix,
 * window (default: `4`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
 * outer_window (default: `0`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2: `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
 * inverted (default: `false`): see **Inverted pagination** above
+* display_if_single (default: `false`): `true` to force a pagination to be displayed when there only is a single page of result(s)
 * param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
 * merge_params (default: `false`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
 * template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
@@ -102,16 +104,22 @@ end
 Then, in your controller, assign it to the view:
 
 ```elixir
-def index(conn, params) do
-  posts =
-    params
-    |> Map.get(:page, 1)
-    |> Blog.posts_at_page()
-
-  conn
-  |> assign(:posts, posts)
+defmodule MyAppWeb.BlogController do
   # ...
-  |> render(:index)
+
+  def index(conn, params) do
+    posts =
+      params
+      |> Map.get(:page, 1) # <= extract the page number from params if present else default to first page
+      |> Blog.posts_at_page()
+
+    conn
+    |> assign(:posts, posts)
+    # ...
+    |> render(:index)
+  end
+
+  # ...
 end
 ```
 

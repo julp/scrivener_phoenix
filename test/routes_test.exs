@@ -1,7 +1,5 @@
 defmodule Scrivener.Phoenix.RoutesTest do
   use ScrivenerPhoenixWeb.ConnCase, async: true
-
-  import Phoenix.View
   alias ScrivenerPhoenixTestWeb.Router.Helpers, as: Routes
 
   setup do
@@ -9,10 +7,6 @@ defmodule Scrivener.Phoenix.RoutesTest do
     [
       entries: page1,
     ]
-  end
-
-  defp render(conn, entries, function, params, options \\ []) do
-    render_to_string(ScrivenerPhoenixTestWeb.DummyView, "index.html", binding())
   end
 
   @url "https://www.scrivener-phoenix.test:2043"

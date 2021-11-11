@@ -14,6 +14,7 @@ defmodule Scrivener.PhoenixView do
   @default_inverted false
   @default_param_name :page
   @default_merge_params false
+  @default_display_if_single false
   @default_template Scrivener.Phoenix.Template.Bootstrap4
 
   defp defaults do
@@ -23,6 +24,7 @@ defmodule Scrivener.PhoenixView do
       window: @default_window,
       outer_window: @default_outer_window,
       inverted: @default_inverted, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
+      display_if_single: @default_display_if_single,
       param_name: @default_param_name,
       merge_params: @default_merge_params,
       template: @default_template,
@@ -50,6 +52,7 @@ defmodule Scrivener.PhoenixView do
     window: non_neg_integer,
     outer_window: non_neg_integer,
     inverted: boolean,
+    display_if_single: boolean,
     param_name: atom | String.t,
     merge_params: boolean | [atom | String.t],
     template: module,
@@ -67,49 +70,17 @@ defmodule Scrivener.PhoenixView do
     },
   }
 
-  @doc """
-  Generates the whole HTML to navigate between pages.
+  @spec do_paginate(conn :: conn_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: %{optional(atom) => any}) :: Phoenix.HTML.safe
 
-  Options:
+  # skip pagination if:
+  # - there is zero entry (total)
+  # - there only is a single page and display_if_single = false
+  defp do_paginate(_conn, %Scrivener.Page{total_entries: 0}, _fun, _arguments, _options), do: nil
+  defp do_paginate(_conn, %Scrivener.Page{total_pages: 1}, _fun, _arguments, %{display_if_single: false}), do: nil
 
-    * left (default: `#{inspect(@default_left)}`): display the *left* first pages
-    * right (default: `#{inspect(@default_right)}`): display the *right* last pages
-    * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
-    * outer_window (default: `#{inspect(@default_outer_window)}`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2:
-      `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
-    * inverted (default: `#{inspect(@default_inverted)}`): `true` to first (left side) link last pages instead of first
-    * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
-    * merge_params (default: `#{inspect(@default_merge_params)}`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
-    * template (default: `#{inspect(@default_template)}`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
-    * symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
-    * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`):
-      the texts used by links to describe the first, previous, next and last page
-  """
-  @spec paginate(conn :: conn_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
-  def paginate(conn, page, fun, arguments \\ [], options \\ [])
-
-  # skip pagination if there is a single page
-  def paginate(_conn, %Scrivener.Page{total_pages: 1}, _fun, _arguments, _options), do: nil
-
-  def paginate(conn, page = %Scrivener.Page{}, fun, arguments, options)
+  defp do_paginate(conn, page = %Scrivener.Page{}, fun, arguments, options = %{})
     when is_function(fun)
   do
-    # if length(arguments) > arity(fun)
-    #   the page (its number) is part of route parameters
-    # else
-    #   it has to be integrated to the query string
-    # fi
-    # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
-    # def blog_page_path(conn, action, pageno, options \\ [])
-
-    # defaults() < config (Application) < options
-    options =
-      defaults()
-      |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
-      |> Keyword.merge(options)
-      |> Enum.into(%{})
-      |> adjust_symbols_if_needed()
-
     map = %{
       first: options.inverted,
       prev: options.inverted,
@@ -161,6 +132,48 @@ defmodule Scrivener.PhoenixView do
     |> Enum.reverse()
     |> prepend_left_links(page, first_page, prev_page, next_page, last_page, options)
     |> options.template.wrap()
+  end
+
+  @doc """
+  Generates the whole HTML to navigate between pages.
+
+  Options:
+
+    * left (default: `#{inspect(@default_left)}`): display the *left* first pages
+    * right (default: `#{inspect(@default_right)}`): display the *right* last pages
+    * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
+    * outer_window (default: `#{inspect(@default_outer_window)}`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2:
+      `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
+    * inverted (default: `#{inspect(@default_inverted)}`): `true` to first (left side) link last pages instead of first
+    * display_if_single (default: `#{inspect(@default_display_if_single)}`): TODO
+    * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
+    * merge_params (default: `#{inspect(@default_merge_params)}`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
+    * template (default: `#{inspect(@default_template)}`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
+    * symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
+    * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`):
+      the texts used by links to describe the first, previous, next and last page
+  """
+  @spec paginate(conn :: conn_or_endpoint, spage :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
+  def paginate(conn, page = %Scrivener.Page{}, fun, arguments \\ [], options \\ [])
+    when is_function(fun)
+  do
+    # if length(arguments) > arity(fun)
+    #   the page (its number) is part of route parameters
+    # else
+    #   it has to be integrated to the query string
+    # fi
+    # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
+    # def blog_page_path(conn, action, pageno, options \\ [])
+
+    # defaults() < config (Application) < options
+    options =
+      defaults()
+      |> Keyword.merge(Application.get_all_env(:scrivener_phoenix))
+      |> Keyword.merge(options)
+      |> Enum.into(%{})
+      |> adjust_symbols_if_needed()
+
+    do_paginate(conn, page, fun, arguments, options)
   end
 
   defp adjust_symbols_if_needed(options = %{inverted: true}) do
