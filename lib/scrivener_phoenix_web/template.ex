@@ -24,19 +24,19 @@ defmodule Scrivener.Phoenix.Template do
   Example:
 
     # this is the current page
-    def page(page = %Scrivener.Phoenix.Page{no: no}, %Scrivener.Page{page_number: no}) do
+    def page(page = %Scrivener.Phoenix.Page{no: no}, %Scrivener.Page{page_number: no}, _options) do
       content_tag(:li) do
         content_tag(:span, no, class: "current")
       end
     end
 
-    def page(page = %Scrivener.Phoenix.Page{}, _) do
+    def page(page = %Scrivener.Phoenix.Page{}, _, _options) do
       content_tag(:li) do
         link(page.no, to: page.href)
       end
     end
   """
-  @callback page(Scrivener.Phoenix.Page.t | Scrivener.Phoenix.Gap.t, Scrivener.Page.t) :: Phoenix.HTML.safe
+  @callback page(Scrivener.Phoenix.Page.t | Scrivener.Phoenix.Gap.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe
 
   @doc ~S"""
   Callback to generate HTML of the first page or to skip it by returning `nil`.
@@ -52,7 +52,7 @@ defmodule Scrivener.Phoenix.Template do
     end
   end
   """
-  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, map) :: Phoenix.HTML.safe | nil
+  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the last page or to skip it by returning `nil`.
@@ -67,17 +67,17 @@ defmodule Scrivener.Phoenix.Template do
       end
     end
   """
-  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, map) :: Phoenix.HTML.safe | nil
+  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the previous page or to skip it by returning `nil`.
   """
-  @callback prev_page(Scrivener.Phoenix.Page.t, map) :: Phoenix.HTML.safe | nil
+  @callback prev_page(Scrivener.Phoenix.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the next page or to skip it by returning `nil`.
   """
-  @callback next_page(Scrivener.Phoenix.Page.t, map) :: Phoenix.HTML.safe | nil
+  @callback next_page(Scrivener.Phoenix.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
 
   defmacro __using__(_options) do
     quote do

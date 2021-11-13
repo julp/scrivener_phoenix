@@ -25,7 +25,7 @@ defmodule Scrivener.Phoenix.MixProject do
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
       ]
     ]
   end
@@ -50,7 +50,7 @@ defmodule Scrivener.Phoenix.MixProject do
 
   defp package do
     [
-      files: ["lib", "priv", "mix.exs", "README*"],
+      files: ~W[lib priv mix.exs CHANGELOG.md README.md],
       licenses: ["BSD"],
       links: %{"GitHub" => "https://github.com/julp/scrivener_phoenix"}
     ]
@@ -61,12 +61,13 @@ defmodule Scrivener.Phoenix.MixProject do
     [
       {:gettext, ">= 0.0.0"},
       {:scrivener, "~> 2.5"},
-      {:phoenix_html, "~> 2.11"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      #{:phoenix_html, "~> 2.11"}, # pulled by phoenix_live_view
+      {:phoenix_live_view, ">= 0.16.0"},
+      {:ex_doc, "~> 0.25", only: :dev, runtime: false},
       # test
       {:jason, "~> 1.2", only: :test},
-      {:phoenix, "~> 1.5", only: :test},
-      {:excoveralls, "~> 0.13", only: :test},
+      #{:phoenix, "~> 1.6", only: :test}, # pulled by phoenix_live_view
+      {:excoveralls, "~> 0.14", only: :test},
       {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
     ]
   end

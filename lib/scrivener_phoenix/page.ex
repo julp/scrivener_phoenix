@@ -5,11 +5,21 @@ defmodule Scrivener.Phoenix.Page do
 
   defstruct ~W[no href]a
 
-  @type t :: %__MODULE__{no: non_neg_integer(), href: String.t}
+  @type t :: %__MODULE__{
+    no: non_neg_integer,
+    href: String.t,
+  }
 
   def create(no, href) do
-    %__MODULE__{no: no, href: href}
+    %__MODULE__{
+      no: no,
+      href: href,
+    }
   end
+
+  # <TODO: find a better place for these functions?>
+  def link_callback(%{live: true}), do: &Phoenix.LiveView.Helpers.live_patch/2
+  def link_callback(_options), do: &Phoenix.HTML.Link.link/2
 
   def handle_rel(page = %__MODULE__{}, spage = %Scrivener.Page{}, attributes \\ []) do
     cond do
@@ -21,6 +31,7 @@ defmodule Scrivener.Phoenix.Page do
         attributes
     end
   end
+  # </TODO: find a better place for these functions?>
 
   @doc ~S"""
   Is the given page the last one?

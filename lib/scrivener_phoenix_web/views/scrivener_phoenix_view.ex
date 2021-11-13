@@ -11,6 +11,7 @@ defmodule Scrivener.PhoenixView do
   @default_right 0
   @default_window 4
   @default_outer_window 0
+  @default_live false
   @default_inverted false
   @default_param_name :page
   @default_merge_params false
@@ -23,6 +24,7 @@ defmodule Scrivener.PhoenixView do
       right: @default_right,
       window: @default_window,
       outer_window: @default_outer_window,
+      live: @default_live,
       inverted: @default_inverted, # NOTE: would be great if it was an option handled by (and passed from - part of %Scriver.Page{}) Scrivener
       display_if_single: @default_display_if_single,
       param_name: @default_param_name,
@@ -44,13 +46,14 @@ defmodule Scrivener.PhoenixView do
     ]
   end
 
-  @typep conn_or_endpoint :: Plug.Conn.t | module
+  @typep conn_or_socket_or_endpoint :: Plug.Conn.t | Phoenix.LiveView.Socket.t | module
   #@typep options :: %{optional(atom) => any}
-  @typep options :: %{
+  @type options :: %{
     left: non_neg_integer,
     right: non_neg_integer,
     window: non_neg_integer,
     outer_window: non_neg_integer,
+    live: boolean,
     inverted: boolean,
     display_if_single: boolean,
     param_name: atom | String.t,
@@ -70,7 +73,7 @@ defmodule Scrivener.PhoenixView do
     },
   }
 
-  @spec do_paginate(conn :: conn_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: %{optional(atom) => any}) :: Phoenix.HTML.safe
+  @spec do_paginate(conn :: conn_or_socket_or_endpoint, page :: Scrivener.Page.t, fun :: function, arguments :: list, options :: %{optional(atom) => any}) :: Phoenix.HTML.safe
 
   # skip pagination if:
   # - there is zero entry (total)
@@ -144,8 +147,9 @@ defmodule Scrivener.PhoenixView do
     * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
     * outer_window (default: `#{inspect(@default_outer_window)}`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2:
       `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
+    * live (default: `#{inspect(@default_live)}`): `true` to generate links with `Phoenix.LiveView.Helpers.live_patch/2` instead of `Phoenix.HTML.Link.link/2`
     * inverted (default: `#{inspect(@default_inverted)}`): `true` to first (left side) link last pages instead of first
-    * display_if_single (default: `#{inspect(@default_display_if_single)}`): TODO
+    * display_if_single (default: `#{inspect(@default_display_if_single)}`): `true` to force a pagination to be displayed when there only is a single page of result(s)
     * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
     * merge_params (default: `#{inspect(@default_merge_params)}`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
     * template (default: `#{inspect(@default_template)}`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
@@ -153,7 +157,7 @@ defmodule Scrivener.PhoenixView do
     * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`):
       the texts used by links to describe the first, previous, next and last page
   """
-  @spec paginate(conn :: conn_or_endpoint, spage :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
+  @spec paginate(conn :: conn_or_socket_or_endpoint, spage :: Scrivener.Page.t, fun :: function, arguments :: list, options :: Keyword.t) :: Phoenix.HTML.safe
   def paginate(conn, page = %Scrivener.Page{}, fun, arguments \\ [], options \\ [])
     when is_function(fun)
   do
@@ -233,7 +237,7 @@ defmodule Scrivener.PhoenixView do
     pages
     |> Enum.reverse()
     |> Enum.into(links, fn page ->
-      options.template.page(page, spage)
+      options.template.page(page, spage, options)
     end)
   end
 
@@ -306,7 +310,7 @@ defmodule Scrivener.PhoenixView do
     Map.take(params, which |> Enum.map(&to_string/1))
   end
 
-  @spec query_params(conn_or_endpoint :: conn_or_endpoint, options :: options) :: map
+  @spec query_params(conn_or_socket_or_endpoint :: conn_or_socket_or_endpoint, options :: options) :: map
   defp query_params(%Plug.Conn{}, %{merge_params: false}) do
     %{}
   end
@@ -315,6 +319,10 @@ defmodule Scrivener.PhoenixView do
     conn = Plug.Conn.fetch_query_params(conn)
     conn.query_params
     |> filter_params(options)
+  end
+
+  defp query_params(%Phoenix.LiveView.Socket{}, _options) do
+    %{}
   end
 
   defp query_params(endpoint, _options)
