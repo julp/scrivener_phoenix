@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :scrivener_phoenix, ScrivenerPhoenixTestWeb.Endpoint,
   http: [port: 4004],

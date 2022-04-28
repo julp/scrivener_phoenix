@@ -11,7 +11,7 @@ defmodule Scrivener.Phoenix.MixProject do
     [
       app: :scrivener_phoenix,
       version: "0.3.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.9",
       compilers: compilers(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -52,7 +52,7 @@ defmodule Scrivener.Phoenix.MixProject do
     [
       files: ~W[lib priv mix.exs CHANGELOG.md README.md],
       licenses: ["BSD"],
-      links: %{"GitHub" => "https://github.com/julp/scrivener_phoenix"}
+      links: %{"GitHub" => "https://github.com/julp/scrivener_phoenix"},
     ]
   end
 
