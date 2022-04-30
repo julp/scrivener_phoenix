@@ -234,11 +234,15 @@ defmodule Scrivener.PhoenixView do
   end
 
   defp append_pages(links, pages, spage, options) do
-    pages
-    |> Enum.reverse()
-    |> Enum.into(links, fn page ->
-      options.template.page(page, spage, options)
-    end)
+    result =
+      pages
+      |> Enum.reverse()
+      |> Enum.map(
+        fn page ->
+          options.template.page(page, spage, options)
+        end
+      )
+    Enum.concat(links, result)
   end
 
   @spec has_prev?(page :: Scrivener.Page.t) :: boolean
