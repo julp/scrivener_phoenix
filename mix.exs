@@ -4,15 +4,12 @@ defmodule Scrivener.Phoenix.MixProject do
   defp elixirc_paths(:test), do: ~W[lib test/support]
   defp elixirc_paths(_), do: ~W[lib]
 
-  defp compilers(:test), do: ~W[phoenix gettext]a ++ Mix.compilers()
-  defp compilers(_), do: ~W[gettext]a ++ Mix.compilers()
-
   def project do
     [
       app: :scrivener_phoenix,
       version: "0.3.0",
       elixir: "~> 1.9",
-      compilers: compilers(Mix.env()),
+      compilers: ~W[gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
