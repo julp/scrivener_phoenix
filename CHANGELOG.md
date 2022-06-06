@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2022-06-06)
+
+fixed warning about collecting into a non-empty list
+
 ## 0.3.0 (2021-11-13)
 
 added preliminar support for Live View by calling `Phoenix.LiveView.Helpers.live_patch/2` instead of `Phoenix.HTML.Link.link/2` if *live* option is `true`

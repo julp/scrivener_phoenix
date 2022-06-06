@@ -23,7 +23,7 @@ def deps do
   [
     # ...
     {:scrivener_ecto, "~> 2.7"},
-    {:scrivener_phoenix, "~> 0.3.0"},
+    {:scrivener_phoenix, "~> 0.3.1"},
   ]
 end
 ```
@@ -34,7 +34,7 @@ The docs can be found at [https://hexdocs.pm/scrivener_phoenix](https://hexdocs.
 
 Configure scrivener_phoenix in your_app/config/config.exs:
 
-```
+```elixir
 config :scrivener_phoenix,
   left: 0,
   right: 0,
@@ -201,6 +201,20 @@ def blog_page_path(conn_or_endpoint, action = :index, page, query_params \\ [])
 ```
 
 TL;DR: for arity, add 3 to the length of the list you pass as parameters if page number is a parameter to your route else 2 (and the page number will be part of the query string)
+
+Of course you can use your own functions as callback, eg: `<%= paginate @conn, @posts, fn conn, args -> MyBlogWeb.Router.Helpers.blog_path(conn, :index, args) end %>` or:
+
+```elixir
+defmodule SomeModule do
+  def comment_index_url(conn, post, page, args) do
+    MyBlogWeb.Router.Helpers.blog_post_comment_page_url(conn, :index, post, page, args)
+  end
+end
+```
+
+With `<%= paginate @conn, @comments, &SomeModule.comment_index_url/3, [@post] %>` in the template.
+
+Note that the conn (or endpoint module's name) remains the first argument and the Keyword-list for the query string parameters the very last.
 
 ## LiveView: dealing with live views
 
