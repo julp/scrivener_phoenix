@@ -23,7 +23,7 @@ def deps do
   [
     # ...
     {:scrivener_ecto, "~> 2.7"},
-    {:scrivener_phoenix, "~> 0.3.1"},
+    {:scrivener_phoenix, "~> 0.3.2"},
   ]
 end
 ```
@@ -223,7 +223,7 @@ In order to avoid liveview reloading, we need to handle page changes with `handl
 So, comparatively to a dead view, only 2 changes are required:
 
 1. the first parameter of `Scrivener.PhoenixView.paginate/5`, usually `@conn`, becomes `@socket`
-2. add `live: true` as option to `Scrivener.PhoenixView.paginate/5`
+2. add `live: true` as option to `Scrivener.PhoenixView.paginate/5` but as of scrivener_phoenix 0.3.2 it should be automatically set for you
 
 Example:
 

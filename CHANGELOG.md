@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 (2022-07-23)
+
+* gettext dependency updated to 0.20
+* automatically set `:live` option to `true` (if omitted) when the first argument of `Scrivener.PhoenixView.paginate/5` is a `%Phoenix.LiveView.Socket{}`
+
 ## 0.3.1 (2022-06-06)
 
 fixed warning about collecting into a non-empty list

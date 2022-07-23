@@ -7,7 +7,7 @@ defmodule Scrivener.Phoenix.MixProject do
   def project do
     [
       app: :scrivener_phoenix,
-      version: "0.3.1",
+      version: "0.3.2",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: description(),
