@@ -11,7 +11,7 @@ defmodule Scrivener.PhoenixView do
   @default_right 0
   @default_window 4
   @default_outer_window 0
-  @default_live false
+  @default_live nil
   @default_inverted false
   @default_param_name :page
   @default_merge_params false
@@ -53,7 +53,7 @@ defmodule Scrivener.PhoenixView do
     right: non_neg_integer,
     window: non_neg_integer,
     outer_window: non_neg_integer,
-    live: boolean,
+    live: boolean | nil,
     inverted: boolean,
     display_if_single: boolean,
     param_name: atom | String.t,
@@ -137,6 +137,14 @@ defmodule Scrivener.PhoenixView do
     |> options.template.wrap()
   end
 
+  defp auto_set_live_option(options = %{live: nil}, cse)
+    when is_map(options)
+  do
+    Map.put(options, :live, is_struct(cse) and cse.__struct__ == Phoenix.LiveView.Socket)
+  end
+
+  defp auto_set_live_option(options, _cse), do: options
+
   @doc """
   Generates the whole HTML to navigate between pages.
 
@@ -147,7 +155,9 @@ defmodule Scrivener.PhoenixView do
     * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
     * outer_window (default: `#{inspect(@default_outer_window)}`), equivalent to left = right = outer_window: display the *outer_window* first and last pages (eg valued to 2:
       `« First ‹ Prev 1 2 ... 5 6 7 8 9 ... 19 20 Next › Last »` as opposed to left = 1 and right = 3: `« First ‹ Prev 1 ... 5 6 7 8 9 ... 18 19 20 Next › Last »`)
-    * live (default: `#{inspect(@default_live)}`): `true` to generate links with `Phoenix.LiveView.Helpers.live_patch/2` instead of `Phoenix.HTML.Link.link/2`
+    * live (default: `#{inspect(@default_live)}`):
+      + `true` to generate links with `Phoenix.LiveView.Helpers.live_patch/2` instead of `Phoenix.HTML.Link.link/2`
+      + `nil` to set it automatically to `true` when `paginate/5` is called with a `%Phoenix.LiveView.Socket{}` as its first parameter else `false`
     * inverted (default: `#{inspect(@default_inverted)}`): `true` to first (left side) link last pages instead of first
     * display_if_single (default: `#{inspect(@default_display_if_single)}`): `true` to force a pagination to be displayed when there only is a single page of result(s)
     * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
@@ -176,6 +186,7 @@ defmodule Scrivener.PhoenixView do
       |> Keyword.merge(options)
       |> Enum.into(%{})
       |> adjust_symbols_if_needed()
+      |> auto_set_live_option(conn)
 
     do_paginate(conn, page, fun, arguments, options)
   end
