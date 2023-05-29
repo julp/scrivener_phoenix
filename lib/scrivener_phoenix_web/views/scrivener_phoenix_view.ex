@@ -20,6 +20,7 @@ defmodule Scrivener.PhoenixView do
 
   defp defaults do
     [
+      params: nil,
       left: @default_left,
       right: @default_right,
       window: @default_window,
@@ -49,6 +50,7 @@ defmodule Scrivener.PhoenixView do
   @typep conn_or_socket_or_endpoint :: Plug.Conn.t | Phoenix.LiveView.Socket.t | module
   #@typep options :: %{optional(atom) => any}
   @type options :: %{
+    params: Enumerable.t | nil,
     left: non_neg_integer,
     right: non_neg_integer,
     window: non_neg_integer,
@@ -150,6 +152,7 @@ defmodule Scrivener.PhoenixView do
 
   Options:
 
+    * params (default: `nil`): an explicit list (or map) of parameters to add to the query string, this is mostly intended for LiveView with `push_patch` since *params* have to be handled by yourself
     * left (default: `#{inspect(@default_left)}`): display the *left* first pages
     * right (default: `#{inspect(@default_right)}`): display the *right* last pages
     * window (default: `#{inspect(@default_window)}`): display *window* pages before and after the current page (eg, if 7 is the current page and window is 2, you'd get: `5 6 7 8 9`)
@@ -346,6 +349,12 @@ defmodule Scrivener.PhoenixView do
     %{}
   end
 
+  defp merge_user_params(new_query_params, _options = %{params: nil}), do: new_query_params
+
+  defp merge_user_params(new_query_params, _options = %{params: user_params}) do
+    Map.merge(new_query_params, Enum.into(user_params, %{}))
+  end
+
   # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
   defp handle_arguments(conn, arity, helper_arguments, page_number, options)
     when arity == length(helper_arguments) + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
@@ -354,6 +363,7 @@ defmodule Scrivener.PhoenixView do
       conn
       |> query_params(options)
       |> Map.delete(to_string(options.param_name))
+      |> merge_user_params(options)
       |> map_to_keyword()
 
     [conn | helper_arguments] ++ [page_number, new_query_params]
@@ -367,6 +377,7 @@ defmodule Scrivener.PhoenixView do
       conn
       |> query_params(options)
       |> Map.put(options.param_name, page_number)
+      |> merge_user_params(options)
       |> map_to_keyword()
 
     [conn | helper_arguments] ++ [new_query_params]

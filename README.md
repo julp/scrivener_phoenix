@@ -128,7 +128,7 @@ end
 Then, in your template, you just have to call the `paginate` helper:
 
 ```eex
-<%= paginate @conn, @posts, route_function, route_params %>
+<%= paginate(@conn, @posts, route_function, route_params) %>
 ```
 
 Where:
@@ -154,7 +154,7 @@ end
 You have to paginate this way:
 
 ```eex
-<%= paginate @conn, @posts, &MyBlogWeb.Router.Helpers.blog_path/3, [:index] %>
+<%= paginate(@conn, @posts, &MyBlogWeb.Router.Helpers.blog_path/3, [:index]) %>
 ```
 
 The `/3` arity stands for:
@@ -184,7 +184,7 @@ end
 And you paginate as follows:
 
 ```eex
-<%= paginate @conn, @posts, &MyBlogWeb.Router.Helpers.blog_page_path/4, [:index] %>
+<%= paginate(@conn, @posts, &MyBlogWeb.Router.Helpers.blog_page_path/4, [:index]) %>
 ```
 
 The arity becomes `/4` with the additionnal :page parameter:
@@ -212,7 +212,7 @@ defmodule SomeModule do
 end
 ```
 
-With `<%= paginate @conn, @comments, &SomeModule.comment_index_url/3, [@post] %>` in the template.
+With `<%= paginate(@conn, @comments, &SomeModule.comment_index_url/3, [@post]) %>` in the template.
 
 Note that the conn (or endpoint module's name) remains the first argument and the Keyword-list for the query string parameters the very last.
 
@@ -273,9 +273,32 @@ Example:
 
       In the router (lib/your_app_web/router.ex, report to the output of the command `mix phx.routes` if you are not sure about the path helper function's name).
     %>
-    <%= paginate @socket, @posts, &Routes.blog_post_path/3, [:index], live: true %>
+    <%= paginate(@socket, @posts, &Routes.blog_post_path/3, [:index], live: true) %>
 
     ...
     """
   end
+```
+
+### push_patch (and/or propagating initial parameters in LV)
+
+LiveViews doesn't record the actual query string (`Phoenix.LiveView.get_connect_params/1` can't be called after `mount`) so you have to handle these parameters by assigning them into an assign and reinject them as `:params` *options*. Example:
+
+```elixir
+  def handle_event/handle_info(...) do
+    new_params = ...
+
+    socket
+    |> assign(:pagination_params, new_params)
+    |> push_patch(to: Routes.user_path(socket, :show, user, new_params))
+    # or
+    #|> push_patch(to: ~p"/user/#{@user}?#{new_params}")
+    |> to_tuple(:noreply)
+  end
+```
+
+Then in your template:
+
+```eex
+<%= paginate(@conn, @posts, &Routes.user_path/4, [:show, @user], [params: @pagination_params]) %>
 ```

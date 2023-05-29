@@ -1,5 +1,10 @@
 # Changelog
 
+## ?.?.? (?-?-?)
+
+* fixed french translation for Plural-Forms (gettext/fr)
+* added option *params* to propagate parameters when it is required to do so "by hand" (think LiveView, `Phoenix.LiveView.push_patch/2` in particular)
+
 ## 0.3.2 (2022-07-23)
 
 * gettext dependency updated to 0.20
