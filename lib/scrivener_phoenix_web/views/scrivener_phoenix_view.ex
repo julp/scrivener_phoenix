@@ -339,8 +339,13 @@ defmodule Scrivener.PhoenixView do
     |> filter_params(options)
   end
 
-  defp query_params(%Phoenix.LiveView.Socket{}, _options) do
+  @spec query_params(conn_or_socket_or_endpoint :: conn_or_socket_or_endpoint, options :: options) :: map
+  defp query_params(%Phoenix.LiveView.Socket{}, %{merge_params: false}) do
     %{}
+  end
+
+  defp query_params(%Phoenix.LiveView.Socket{}, options) do
+    filter_params(options.params, options)
   end
 
   defp query_params(endpoint, _options)
