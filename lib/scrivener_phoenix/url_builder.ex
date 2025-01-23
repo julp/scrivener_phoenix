@@ -42,7 +42,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
     fun = #{__MODULE__}.url(conn, &Routes.blog_path/3, [:index])
 
     # a blog pagination with Phoenix >= 1.7 way (with a verified route)
-    fun = #{__MODULE__}.url(nil, fn page -> ~p"/blog" end, [:index])
+    fun = #{__MODULE__}.url(nil, fn params -> ~p"/blog?\#{params}" end, [:index])
 
     fun.(2)
     # => "/blog?page=2"
@@ -54,7 +54,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
     fun = #{__MODULE__}.url(conn, &Routes.forum_topic_page_path/5, [:show])
 
     # a topic pagination with Phoenix >= 1.7 way (with a verified route)
-    fun = #{__MODULE__}.url(nil, fn id, page~~, _params~~ -> ~p"/forum/topic/#{id}/page/#{page}" end, [:show])
+    fun = #{__MODULE__}.url(nil, fn id, page~~, _params~~ -> ~p"/forum/topic/\#{id}/page/\#{page}" end, [:show])
 
     fun.(7)
     # => "/forum/topic/58/page/7"
