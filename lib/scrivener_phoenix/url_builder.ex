@@ -1,18 +1,72 @@
 defmodule Scrivener.Phoenix.URLBuilder do
+  @moduledoc ~S"""
+  TODO
+  """
+
   @typep conn_or_socket_or_endpoint_or_uri :: Scrivener.PhoenixView.conn_or_socket_or_endpoint_or_uri
   @typep options :: Scrivener.PhoenixView.options
   @typep params :: %{optional(String.t) => any}
 
-  @doc ~S"""
-  TODO
+  @doc """
+  Returns a function to generates page path or URL.
+
+  *conn* can be:
+
+    * `nil`
+    * an `%URI{}` with *fun* set to `nil` but the page can only be part of the query string (not the path)
+    * ~~a string (binary) with *fun* set to `nil` but the page can only be part of the query string (not the path)~~
+    * a `%Plug.Conn{}`
+    * a `%Phoenix.LiveView.Socket{}`
+    * a module (atom) to an endpoint (a module implementing `Phoenix.Endpoint`)
+
+  *fun* should be `nil` for `%URI{}` and strings (binaries) else a callback (function, your route for example) returning a string (binary), the path or URL.
+
+  *helper_arguments* are your known arguments to dynamically call *fun*.
+
+  When *conn* is an endpoint, a `%Plug.Conn{}` or a `%Phoenix.LiveView.Socket{}`, *conn* will be automaticaly prepended to it if omitted.
+
+  If the arity of *fun* == length(*helper_arguments*) + 1 (after prepending *conn* to *helper_arguments* if needed), the page is injected in the query string, these URL parameters will be appended to *helper_arguments* before calling *fun*.
+
+  If the arity of *fun* == length(*helper_arguments*) + 2 (after prepending *conn* to *helper_arguments* if needed), the page is injected in the path so both the page and the query string are appended to *helper_arguments* prior calling *fun* (ie `helper_arguments ++ [page, params]`).
+
+  Notes:
+
+    * keep in mind that this function returns a function, you then have to call it with a page number
+    * original parameters (also implies `options.merge_params` != `false`) can only be reproduced when *conn* is an `%URI{}`~~, a string (binary)~~ or `%Plug.Conn{}`
+
+  Examples:
+
+    ```elixir
+    # a blog pagination with Phoenix <= 1.7 way (with a path helper)
+    # arity = 3 for [conn/endpoint/socket, :index, [page: 2]]
+    fun = #{__MODULE__}.url(conn, &Routes.blog_path/3, [:index])
+
+    # a blog pagination with Phoenix >= 1.7 way (with a verified route)
+    fun = #{__MODULE__}.url(nil, fn page -> ~p"/blog" end, [:index])
+
+    fun.(2)
+    # => "/blog?page=2"
+    ```
+
+    ```elixir
+    # a topic pagination with Phoenix <= 1.7 way (with a path helper)
+    # arity = 5 for [conn/endpoint/socket, :show, @topic, page, []] - the last [] is an - explicit - empty query string
+    fun = #{__MODULE__}.url(conn, &Routes.forum_topic_page_path/5, [:show])
+
+    # a topic pagination with Phoenix >= 1.7 way (with a verified route)
+    fun = #{__MODULE__}.url(nil, fn id, page~~, _params~~ -> ~p"/forum/topic/#{id}/page/#{page}" end, [:show])
+
+    fun.(7)
+    # => "/forum/topic/58/page/7"
+    ```
   """
   @spec url(
     conn :: conn_or_socket_or_endpoint_or_uri,
     fun :: (... -> String.t) | nil,
     helper_arguments :: [any],
     options :: options
-  ) :: String.t # TODO: (pos_integer -> String.t)
-  def url(conn, fun, helper_arguments, options) do
+  ) :: (pos_integer -> String.t)
+  def url(conn, fun, helper_arguments, options \\ []) do
     do_url(conn, fun, helper_arguments, fetch_and_sanitize_params(conn, options), options)
   end
 
@@ -167,6 +221,38 @@ end
       apply(route, helper_arguments ++ [page, new_query_params])
     end
   end
+
+  # <to handle sigil_p>
+  defp handle_arguments(_conn = nil, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
+    when arity == helper_arguments_length + 2
+  do
+    page_as_path(route, helper_arguments, sanitized_params, options)
+#     fn page, sanitized_params ->
+#       new_query_params =
+#         sanitized_params
+#         |> Map.put(param_name, page)
+#         |> map_to_keyword()
+#
+#       apply(route, helper_arguments ++ [page, new_query_params])
+#     end
+  end
+
+  defp handle_arguments(_conn = nil, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
+    when arity == helper_arguments_length + 1
+  do
+    page_as_query_string(route, helper_arguments, sanitized_params, options)
+#     param_name = to_string(options.param_name)
+#
+#     fn page ->
+#       new_query_params =
+#         sanitized_params
+#         |> Map.put(param_name, page)
+#         |> map_to_keyword()
+#
+#       apply(route, helper_arguments ++ [new_query_params])
+#     end
+  end
+  # </to handle sigil_p>
 
   # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
   defp handle_arguments(conn, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)

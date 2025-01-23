@@ -27,27 +27,41 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
 
     assert expected == URI.decode_query(uri.query)
 
-    fun = Scrivener.Phoenix.URLBuilder.url(conn, route, [conn | helper_arguments], options)
-    uri = fun.(2) |> URI.parse()
+    if conn do
+      fun = Scrivener.Phoenix.URLBuilder.url(conn, route, [conn | helper_arguments], options)
+      uri = fun.(2) |> URI.parse()
 
-    assert expected == URI.decode_query(uri.query)
+      assert expected == URI.decode_query(uri.query)
+    end
+  end
+
+  defp routes do
+    [
+      &Routes.blog_post_path/3,
+      &Routes.blog_post_url/3,
+#       fn params ->
+#         ~p"/blog/posts?#{params}"
+#       end,
+    ]
   end
 
   describe "test merge_params behaviour" do
     test "query string is dropped when false", %{conn: conn} do
-      for route <- [&Routes.blog_post_path/3, &Routes.blog_post_url/3] do
+      for route <- routes() do
         do_test(conn, route, [:index], [param_name: :seite, merge_params: false], %{"seite" => "2"})
       end
+      do_test(nil, &(~p"/blog/posts?#{&1}"), [], [param_name: :seite, merge_params: false], %{"seite" => "2"})
     end
 
     test "query string is reproduced when true", %{conn: conn} do
-      for route <- [&Routes.blog_post_path/3, &Routes.blog_post_url/3] do
+      for route <- routes() do
         do_test(conn, route, [:index], [param_name: :seite, merge_params: true], %{"seite" =>"2", "page" => "1", "search" => "spaghetti", "per" => "50"})
       end
+      do_test(nil, &(~p"/blog/posts?#{&1}"), [], [param_name: :seite, merge_params: true], %{"seite" =>"2"})
     end
 
     test "query string is reproduced but page parameter is overridden if already present when true", %{conn: conn} do
-      for route <- [&Routes.blog_post_path/3, &Routes.blog_post_url/3] do
+      for route <- routes() do
         do_test(conn, route, [:index], [merge_params: true], %{"page" => "2", "search" => "spaghetti", "per" => "50"})
       end
     end
@@ -78,6 +92,16 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
       end
     end
 
-    # TODO: check QS as output avec user_params: [id: [5, 3]] et user_params: %{id: %{5 => false, 3 => true}
+    test "ensure a list in input paremeters (user_params) are correctly encoded", %{conn: conn} do
+      for source <- [conn, %URI{}] do
+        do_query_test(source, "page=1&id[]=5&id[]=3", [merge_params: true, user_params: [id: [2, 7]]], %{"id" => ["2", "7"]})
+      end
+    end
+
+    test "ensure a map in input paremeters (user_params) are correctly encoded", %{conn: conn} do
+      for source <- [conn, %URI{}] do
+        do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: true, user_params: [id: %{"2" => "on", "7" => ""}]], %{"id" => %{"2" => "on", "7" => ""}})
+      end
+    end
   end
 end
