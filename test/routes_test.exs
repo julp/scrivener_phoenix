@@ -73,12 +73,13 @@ defmodule Scrivener.Phoenix.RoutesTest do
   describe "ensures path are properly generated from a %URI{}" do
     setup do
 #       [
-        host = "www.faistaconf.fr"
+        authority = "www.site.tld"
+        host = "www.site.tld"
         scheme = "https"
         path = "/"
         port = 443
 #         query = "foo=bar"
-        query = "id[]=3&id[]=5"
+        query = "id[]=5&id[]=3"
         fragment = "top"
 #       ]
 
@@ -88,11 +89,9 @@ defmodule Scrivener.Phoenix.RoutesTest do
     end
 
     test "X", %{uri: uri} do
-#       options = %{merge_params: true, param_name: :page, params: nil}
       options = %{merge_params: ~W[id]a, param_name: :page, params: nil}
 
-      sanitized_params = Scrivener.Phoenix.URLBuilder.fetch_and_sanitize_params(uri, options)
-      assert Scrivener.Phoenix.URLBuilder.url(uri, nil, [], 3, sanitized_params, options) == URI.to_string(uri)
+      compare_uri(Scrivener.Phoenix.URLBuilder.url(uri, nil, [], options).(3), uri, %{"page" => "3", "id" => ["5", "3"]})
     end
   end
 end

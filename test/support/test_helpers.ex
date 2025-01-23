@@ -27,6 +27,26 @@ defmodule ScrivenerPhoenix.TestHelpers do
     end
   end
 
+  defp do_compare_uri(result, expected = %URI{}, params) do
+    import ExUnit.Assertions
+
+    assert %{result | query: nil} == %{expected | query: nil}
+    assert decode_query(result.query) == params
+  end
+
+  defp do_compare_uri(result, "" <> expected, params) do
+    compare_uri(result, URI.parse(expected), params)
+  end
+
+  @doc ~S"""
+  Compare *result* to *expected* but ignore *expected*'s  query in favor of *params*
+  """
+  def compare_uri("" <> result, expected, params) do
+    result
+    |> URI.parse()
+    |> do_compare_uri(expected, params)
+  end
+
   @spec page_count(total_entries :: non_neg_integer, page_size :: pos_integer) :: pos_integer
   defp page_count(total_entries, page_size) do
     div(total_entries - 1, page_size) + 1

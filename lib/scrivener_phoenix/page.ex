@@ -11,13 +11,14 @@ defmodule Scrivener.Phoenix.Page do
     href: String.t,
   }
 
-  def create(no, href) do
+  def create(no, href) do # TODO: no, fun
     %__MODULE__{
       no: no,
       href: href,
 #       next?: ,
 #       prev?: ,
 #       current?: ,
+#       last?: ,
     }
   end
 

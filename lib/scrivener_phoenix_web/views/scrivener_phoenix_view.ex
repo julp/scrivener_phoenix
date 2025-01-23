@@ -110,14 +110,14 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       right_window_plus_one = range_as_list(page.total_pages - options.right, page.total_pages)
       inside_window_plus_each_sides = range_as_list(page.page_number - options.window - 1, page.page_number + options.window + 1)
 
-      sanitized_params = fetch_and_sanitize_params(conn, options)
-      first_page = Page.create(1, url(conn, fun, arguments, 1, sanitized_params, options))
-      last_page = Page.create(page.total_pages, url(conn, fun, arguments, page.total_pages, sanitized_params, options))
+      fun = url(conn, fun, arguments, options)
+      first_page = Page.create(1, fun.(1))
+      last_page = Page.create(page.total_pages, fun.(page.total_pages))
       prev_page = if has_prev?(page) do
-        Page.create(page.page_number - 1, url(conn, fun, arguments, page.page_number - 1, sanitized_params, options))
+        Page.create(page.page_number - 1, fun.(page.page_number - 1))
       end
       next_page = if has_next?(page) do
-        Page.create(page.page_number + 1, url(conn, fun, arguments, page.page_number + 1, sanitized_params, options))
+        Page.create(page.page_number + 1, fun.(page.page_number + 1))
       end
       window_pages =
         left_window_plus_one
@@ -128,7 +128,7 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
         |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
         |> Enum.map(
           fn page_number ->
-            Page.create(page_number, url(conn, fun, arguments, page_number, sanitized_params, options))
+            Page.create(page_number, fun.(page_number))
           end
         )
         |> add_gap(page, options)
