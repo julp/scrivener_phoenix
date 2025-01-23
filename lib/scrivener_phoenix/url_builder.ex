@@ -13,8 +13,9 @@ defmodule Scrivener.Phoenix.URLBuilder do
     page_number :: pos_integer,
     sanitized_params :: params,
     options :: options
-  ) :: String.t
+  ) :: String.t # TODO: (pos_integer -> String.t)
   def url(uri = %URI{}, _fun = nil, _helper_arguments, page_number, sanitized_params, options) do
+# IF
     new_query =
       sanitized_params
       |> Map.put(to_string(options.param_name), to_string(page_number))
@@ -23,6 +24,18 @@ defmodule Scrivener.Phoenix.URLBuilder do
 
     %{uri | query: new_query}
     |> URI.to_string()
+# ELSE
+#     fn page ->
+#       new_query =
+#         sanitized_params
+#         |> Map.put(to_string(options.param_name), page_number)
+#         # NOTE: URI.encode_query/[12] doesn't handle parameters in list (id[]=3&id[]=5) or map (id[3]=false&id[5]=true) form
+#         |> Plug.Conn.Query.encode()
+#
+#       %{uri | query: new_query}
+#       |> URI.to_string()
+#     end
+# END
   end
 
   def url(conn, fun, helper_arguments, page_number, sanitized_params, options) do
@@ -140,59 +153,91 @@ end
   # WARNING: usage of the query string implies to use the route with an arity + 1 because Phoenix create routes as:
   # def blog_page_path(conn, action, pageno, options \\ [])
 
-  # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
-  defp handle_arguments(conn, arity, helper_arguments, helper_arguments_length, page_number, sanitized_params, _options)
-    when arity == helper_arguments_length + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
-  do
+  defp page_as_query_string(helper_arguments, page_number, sanitized_params, options) do
+# IF
     new_query_params =
-#       conn
-#       |> query_params(options)
       sanitized_params
-#       |> Map.delete(to_string(options.param_name))
-#       |> merge_user_params(options)
+      |> Map.put(to_string(options.param_name), page_number)
       |> map_to_keyword()
 
-    [conn | helper_arguments] ++ [page_number, new_query_params]
+    helper_arguments ++ [new_query_params]
+# ELSE
+    # TODO: fun undefined
+#     fn page ->
+#       new_query_params =
+#         sanitized_params
+#         |> Map.put(to_string(options.param_name), page_number)
+#         |> map_to_keyword()
+#
+#       apply(fun, helper_arguments ++ [new_query_params])
+#     end
+# END
+  end
+
+  defp page_as_path(helper_arguments, page_number, sanitized_params, options) do
+    new_query_params =
+      sanitized_params
+      |> Map.delete(to_string(options.param_name))
+      |> map_to_keyword()
+# IF
+    helper_arguments ++ [page_number, new_query_params]
+# ELSE
+    # TODO: fun undefined
+#     fn page ->
+#       apply(fun, helper_arguments ++ [page_number, new_query_params])
+#     end
+# END
+  end
+
+  # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
+  defp handle_arguments(conn, arity, helper_arguments, helper_arguments_length, page_number, sanitized_params, options)
+    when arity == helper_arguments_length + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
+  do
+    page_as_path([conn | helper_arguments], page_number, sanitized_params, options)
   end
 
   # else integrate page_number as query string
   defp handle_arguments(conn, arity, helper_arguments, helper_arguments_length, page_number, sanitized_params, options)
     when arity == helper_arguments_length + 2 # 2 for (not counted) conn + additionnal parameters (query string)
   do
-    new_query_params =
-#       conn
-#       |> query_params(options)
-      sanitized_params
-      |> Map.put(to_string(options.param_name), page_number)
-#       |> merge_user_params(options)
-      |> map_to_keyword()
-
-    [conn | helper_arguments] ++ [new_query_params]
+    page_as_query_string([conn | helper_arguments], page_number, sanitized_params, options)
   end
 
-#   defp handle_arguments(conn, arity, helper_arguments = [%module{} | _rest], helper_arguments_length, page_number, sanitized_params)
+  # <user already provided conn/socket/endpoint in helper_arguments>
+  defp handle_arguments(conn, arity, helper_arguments = [conn | _rest], helper_arguments_length, page_number, sanitized_params, options)
+    when not is_nil(conn) and arity == helper_arguments_length + 1
+  do
+    page_as_query_string(helper_arguments, page_number, sanitized_params, options)
+  end
+
+  defp handle_arguments(conn, arity, helper_arguments = [conn | _rest], helper_arguments_length, page_number, sanitized_params, options)
+    when not is_nil(conn) and arity == helper_arguments_length + 2
+  do
+    page_as_path(helper_arguments, page_number, sanitized_params, options)
+  end
+  # </user already provided conn/socket/endpoint in helper_arguments>
+
+#   defp handle_arguments(_conn, arity, helper_arguments = [%module{} | _rest], helper_arguments_length, page_number, sanitized_params, options)
 #     when module in [Plug.Conn, Phoenix.LiveView.Socket] and arity == helper_arguments_length + 1
 #   do
-#     new_query_params =
-#       conn
-#       |> query_params(options)
-#       |> Map.put(to_string(options.param_name), page_number)
-#       |> merge_user_params(options)
-#       |> map_to_keyword()
-#
-#     helper_arguments ++ [new_query_params]
+#     page_as_query_string(helper_arguments, page_number, sanitized_params, options)
 #   end
 
-#   defp handle_arguments(conn, arity, helper_arguments = [endpoint | _rest], helper_arguments_length, page_number, sanitized_params)
+#   defp handle_arguments(_conn, arity, helper_arguments = [%module{} | _rest], helper_arguments_length, page_number, sanitized_params, options)
+#     when module in [Plug.Conn, Phoenix.LiveView.Socket] and arity == helper_arguments_length + 2
+#   do
+#     page_as_path(helper_arguments, page_number, sanitized_params, options)
+#   end
+
+#   defp handle_arguments(_conn, arity, helper_arguments = [endpoint | _rest], helper_arguments_length, page_number, sanitized_params, options)
+#     when is_atom(endpoint) and arity == helper_arguments_length + 1
+#   do
+#     page_as_query_string(helper_arguments, page_number, sanitized_params, options)
+#   end
+
+#   defp handle_arguments(_conn, arity, helper_arguments = [endpoint | _rest], helper_arguments_length, page_number, sanitized_params, options)
 #     when is_atom(endpoint) and arity == helper_arguments_length + 2
 #   do
-#     new_query_params =
-#       conn
-#       |> query_params(options)
-#       |> Map.delete(to_string(options.param_name))
-#       |> merge_user_params(options)
-#       |> map_to_keyword()
-#
-#     helper_arguments ++ [page_number, new_query_params]
+#     page_as_path(helper_arguments, page_number, sanitized_params, options)
 #   end
 end

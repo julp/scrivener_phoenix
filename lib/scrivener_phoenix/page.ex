@@ -15,6 +15,9 @@ defmodule Scrivener.Phoenix.Page do
     %__MODULE__{
       no: no,
       href: href,
+#       next?: ,
+#       prev?: ,
+#       current?: ,
     }
   end
 

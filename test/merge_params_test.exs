@@ -77,5 +77,7 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
         do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: ~W[id]], %{"id" => %{"5" => "false", "3" => "true"}})
       end
     end
+
+    # TODO: check QS as output avec user_params: [id: [5, 3]] et user_params: %{id: %{5 => false, 3 => true}
   end
 end

@@ -4,6 +4,7 @@ defmodule Scrivener.Phoenix.RoutesTest do
 
   setup do
     [page1, _page2] = pages_fixture(18, 10)
+
     [
       entries: page1,
     ]
@@ -51,6 +52,47 @@ defmodule Scrivener.Phoenix.RoutesTest do
         render(conn_or_endpoint, entries, &Routes.forum_topic_page_url/5, [:show, 564])
         |> (& assert contains_link?(&1, "#{@url}/forum/topics/564/page/2")).()
       end
+    end
+  end
+
+#   describe "ensures path are properly generated from a %Phoenix.LiveView.Socket{}" do
+#     import Phoenix.LiveViewTest
+
+#     test "1" do
+#       assert render_component(&MyComponents.greet/1, name: "Mary") =~ "FOO"
+#     end
+
+#     test "2", %{conn: conn} do
+#       conn = get(conn, "/my-path")
+#       assert html_response(conn, 200) =~ "<h1>My Disconnected View</h1>"
+
+#       {:ok, view, html} = live(conn)
+#     end
+#   end
+
+  describe "ensures path are properly generated from a %URI{}" do
+    setup do
+#       [
+        host = "www.faistaconf.fr"
+        scheme = "https"
+        path = "/"
+        port = 443
+#         query = "foo=bar"
+        query = "id[]=3&id[]=5"
+        fragment = "top"
+#       ]
+
+      [
+        uri: struct(URI, binding()),
+      ]
+    end
+
+    test "X", %{uri: uri} do
+#       options = %{merge_params: true, param_name: :page, params: nil}
+      options = %{merge_params: ~W[id]a, param_name: :page, params: nil}
+
+      sanitized_params = Scrivener.Phoenix.URLBuilder.fetch_and_sanitize_params(uri, options)
+      assert Scrivener.Phoenix.URLBuilder.url(uri, nil, [], 3, sanitized_params, options) == URI.to_string(uri)
     end
   end
 end
