@@ -11,7 +11,6 @@ defmodule Scrivener.Phoenix.RoutesTest do
   end
 
   @url "https://www.scrivener-phoenix.test:2043"
-  @endpoint ScrivenerPhoenixTestWeb.Endpoint
   # MIX_ENV=test mix phx.routes ScrivenerPhoenixTestWeb.Router
   describe "ensures path are properly generated from a %Plug.Conn{} or endpoint" do
     test "blog_post_(path|url)/3", %{conn: conn, entries: entries} do

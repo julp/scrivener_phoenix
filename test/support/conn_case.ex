@@ -23,8 +23,13 @@ defmodule ScrivenerPhoenixWeb.ConnCase do
       import ScrivenerPhoenix.TestHelpers
       alias ScrivenerPhoenixTestWeb.Router.Helpers, as: Routes
 
-      # The default endpoint for testing
+      @router ScrivenerPhoenixTestWeb.Router
       @endpoint ScrivenerPhoenixTestWeb.Endpoint
+
+      use Phoenix.VerifiedRoutes, [
+        router: @router,
+        endpoint: @endpoint,
+      ]
     end
   end
 
