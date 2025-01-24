@@ -94,13 +94,13 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
 
     test "ensure a list in input paremeters (user_params) are correctly encoded", %{conn: conn} do
       for source <- [conn, %URI{}] do
-        do_query_test(source, "page=1&id[]=5&id[]=3", [merge_params: true, user_params: [id: [2, 7]]], %{"id" => ["2", "7"]})
+        do_query_test(source, "page=1&id[]=5&id[]=3", [merge_params: true, params: [id: [2, 7]]], %{"id" => ["2", "7"]})
       end
     end
 
     test "ensure a map in input paremeters (user_params) are correctly encoded", %{conn: conn} do
       for source <- [conn, %URI{}] do
-        do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: true, user_params: [id: %{"2" => "on", "7" => ""}]], %{"id" => %{"2" => "on", "7" => ""}})
+        do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: true, params: [id: %{"2" => "on", "7" => ""}]], %{"id" => %{"2" => "on", "7" => ""}})
       end
     end
   end
