@@ -36,7 +36,7 @@ defmodule Scrivener.Phoenix.Template do
       end
     end
   """
-  @callback page(Scrivener.Phoenix.Page.t | Scrivener.Phoenix.Gap.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe
+  @callback page(Scrivener.Phoenix.Page.t | Scrivener.Phoenix.Gap.t, Scrivener.Page.t, Scrivener.Phoenix.Options.t) :: Phoenix.HTML.safe
 
   @doc ~S"""
   Callback to generate HTML of the first page or to skip it by returning `nil`.
@@ -52,7 +52,7 @@ defmodule Scrivener.Phoenix.Template do
       end
     end
   """
-  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
+  @callback first_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.Phoenix.Options.t) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the last page or to skip it by returning `nil`.
@@ -67,17 +67,17 @@ defmodule Scrivener.Phoenix.Template do
       end
     end
   """
-  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
+  @callback last_page(Scrivener.Phoenix.Page.t, Scrivener.Page.t, Scrivener.Phoenix.Options.t) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the previous page or to skip it by returning `nil`.
   """
-  @callback prev_page(Scrivener.Phoenix.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
+  @callback prev_page(Scrivener.Phoenix.Page.t, Scrivener.Phoenix.Options.t) :: Phoenix.HTML.safe | nil
 
   @doc ~S"""
   Callback to generate HTML of the next page or to skip it by returning `nil`.
   """
-  @callback next_page(Scrivener.Phoenix.Page.t, Scrivener.PhoenixView.options) :: Phoenix.HTML.safe | nil
+  @callback next_page(Scrivener.Phoenix.Page.t, Scrivener.Phoenix.Options.t) :: Phoenix.HTML.safe | nil
 
   defmacro __using__(_options) do
     quote do

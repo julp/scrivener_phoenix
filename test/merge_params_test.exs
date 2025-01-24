@@ -9,7 +9,7 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
   end
 
   defp do_query_test(conn, query, options, expected) do
-    options = Enum.into(options, %{params: nil, param_name: :page}) # TODO: DRY
+    options = Scrivener.Phoenix.Options.merge(options)
 
     conn
     |> set_query(query)
@@ -18,7 +18,7 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
   end
 
   defp do_test(conn, route, helper_arguments, options, expected) do
-    options = Enum.into(options, %{params: nil, param_name: :page}) # TODO: DRY
+    options = Scrivener.Phoenix.Options.merge(options)
 
     # NOTE: for Scrivener.PhoenixView.URLBuilder.url, options were previously converted to a map
     # TODO: add a public intermediary function to build options

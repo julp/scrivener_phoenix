@@ -95,7 +95,7 @@ defmodule Scrivener.Phoenix.RoutesTest do
     end
 
     test "X", %{uri: uri} do
-      options = %{merge_params: ~W[id]a, param_name: :page, params: nil}
+      options = Scrivener.Phoenix.Options.merge(merge_params: ~W[id]a)
 
       compare_uri(Scrivener.Phoenix.URLBuilder.url(uri, nil, [], options).(3), uri, %{"page" => "3", "id" => ["5", "3"]})
     end

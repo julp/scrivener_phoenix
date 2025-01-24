@@ -18,22 +18,22 @@ msgstr ""
 msgid "Previous page"
 msgstr ""
 
-#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:35
+#: lib/scrivener_phoenix/options.ex:50
 #, elixir-format, elixir-autogen
 msgid "First"
 msgstr ""
 
-#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:38
+#: lib/scrivener_phoenix/options.ex:53
 #, elixir-format, elixir-autogen
 msgid "Last"
 msgstr ""
 
-#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:37
+#: lib/scrivener_phoenix/options.ex:52
 #, elixir-format, elixir-autogen
 msgid "Next"
 msgstr ""
 
-#: lib/scrivener_phoenix_web/views/scrivener_phoenix_view.ex:36
+#: lib/scrivener_phoenix/options.ex:51
 #, elixir-format, elixir-autogen
 msgid "Prev"
 msgstr ""

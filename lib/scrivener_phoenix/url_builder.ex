@@ -3,8 +3,8 @@ defmodule Scrivener.Phoenix.URLBuilder do
   TODO
   """
 
-  @typep conn_or_socket_or_endpoint_or_uri :: Scrivener.PhoenixView.conn_or_socket_or_endpoint_or_uri
-  @typep options :: Scrivener.PhoenixView.options
+  @typep conn_or_socket_or_endpoint_or_uri_or_binary_or_nil :: Scrivener.PhoenixView.conn_or_socket_or_endpoint_or_uri_or_binary_or_nil
+  @typep options :: Scrivener.Phoenix.Options.t
   @typep params :: %{optional(String.t) => any}
 
   @doc """
@@ -14,7 +14,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
 
     * `nil`
     * an `%URI{}` with *fun* set to `nil` but the page can only be part of the query string (not the path)
-    * ~~a string (binary) with *fun* set to `nil` but the page can only be part of the query string (not the path)~~
+    * a string (binary) with *fun* set to `nil` but the page can only be part of the query string (not the path)
     * a `%Plug.Conn{}`
     * a `%Phoenix.LiveView.Socket{}`
     * a module (atom) to an endpoint (a module implementing `Phoenix.Endpoint`)
@@ -32,7 +32,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
   Notes:
 
     * keep in mind that this function returns a function, you then have to call it with a page number
-    * original parameters (also implies `options.merge_params` != `false`) can only be reproduced when *conn* is an `%URI{}`~~, a string (binary)~~ or `%Plug.Conn{}`
+    * original parameters (also implies `options.merge_params` != `false`) can only be reproduced when *conn* is an `%URI{}`, a string (binary) or `%Plug.Conn{}`
 
   Examples:
 
@@ -42,7 +42,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
     fun = #{__MODULE__}.url(conn, &Routes.blog_path/3, [:index])
 
     # a blog pagination with Phoenix >= 1.7 way (with a verified route)
-    fun = #{__MODULE__}.url(nil, fn params -> ~p"/blog?\#{params}" end, [:index])
+    fun = #{__MODULE__}.url(nil, fn params -> ~p"/blog?\#{params}" end, [])
 
     fun.(2)
     # => "/blog?page=2"
@@ -54,23 +54,31 @@ defmodule Scrivener.Phoenix.URLBuilder do
     fun = #{__MODULE__}.url(conn, &Routes.forum_topic_page_path/5, [:show])
 
     # a topic pagination with Phoenix >= 1.7 way (with a verified route)
-    fun = #{__MODULE__}.url(nil, fn id, page~~, _params~~ -> ~p"/forum/topic/\#{id}/page/\#{page}" end, [:show])
+    fun = #{__MODULE__}.url(nil, fn topic, page, _params -> ~p"/forum/topic/\#{topic}/page/\#{page}" end, [@topic])
 
     fun.(7)
     # => "/forum/topic/58/page/7"
     ```
   """
   @spec url(
-    conn :: conn_or_socket_or_endpoint_or_uri,
+    conn :: conn_or_socket_or_endpoint_or_uri_or_binary_or_nil,
     fun :: (... -> String.t) | nil,
     helper_arguments :: [any],
     options :: options
-  ) :: (pos_integer -> String.t)
-  def url(conn, fun, helper_arguments, options \\ []) do
+  ) :: (pos_integer -> String.t) | no_return
+  def url(conn, fun, helper_arguments, options = %Scrivener.Phoenix.Options{}) do
     do_url(conn, fun, helper_arguments, fetch_and_sanitize_params(conn, options), options)
   end
 
-  defp do_url(uri = %URI{}, _fun = nil, _helper_arguments, sanitized_params, options) do
+  defp do_url(string, fun = nil, helper_arguments = [], sanitized_params, options)
+    when is_binary(string)
+  do
+    string
+    |> URI.new!() # => no_return
+    |> do_url(fun, helper_arguments, sanitized_params, options)
+  end
+
+  defp do_url(uri = %URI{}, _fun = nil, _helper_arguments = [], sanitized_params, options) do
     param_name = to_string(options.param_name)
 
     fn page ->
@@ -93,7 +101,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
   @doc ~S"""
   TODO
   """
-  @spec fetch_and_sanitize_params(conn :: conn_or_socket_or_endpoint_or_uri, options :: options) :: params
+  @spec fetch_and_sanitize_params(conn :: conn_or_socket_or_endpoint_or_uri_or_binary_or_nil, options :: options) :: params
   def fetch_and_sanitize_params(conn, options) do
     conn
     |> query_params(options)
@@ -124,11 +132,11 @@ if false do
   """
 end
   @spec filter_params(params :: map, options :: options) :: map
-  defp filter_params(params, %{merge_params: true}) do
+  defp filter_params(params, %Scrivener.Phoenix.Options{merge_params: true}) do
     params
   end
 
-  defp filter_params(params, %{merge_params: which})
+  defp filter_params(params, %Scrivener.Phoenix.Options{merge_params: which})
     when is_list(which)
   do
     Map.take(params, which |> Enum.map(&to_string/1))
@@ -141,8 +149,8 @@ if false do
   Returns an empty map `%{}` as default/in other cases.
   """
 end
-  @spec query_params(conn_or_socket_or_endpoint_or_uri :: conn_or_socket_or_endpoint_or_uri, options :: options) :: map
-  defp query_params(_, %{merge_params: false}) do
+  @spec query_params(conn_or_socket_or_endpoint_or_uri_or_binary_or_nil :: conn_or_socket_or_endpoint_or_uri_or_binary_or_nil, options :: options) :: map
+  defp query_params(_, %Scrivener.Phoenix.Options{merge_params: false}) do
     %{}
   end
 
@@ -182,11 +190,11 @@ if false do
   TODO
   """
 end
-  defp merge_user_params(new_query_params, _options = %{params: nil}) do
+  defp merge_user_params(new_query_params, _options = %Scrivener.Phoenix.Options{params: nil}) do
     new_query_params
   end
 
-  defp merge_user_params(new_query_params, _options = %{params: user_params}) do
+  defp merge_user_params(new_query_params, _options = %Scrivener.Phoenix.Options{params: user_params}) do
     Map.merge(new_query_params, Enum.into(user_params, %{}))
   end
 
