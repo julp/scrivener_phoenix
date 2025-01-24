@@ -52,13 +52,13 @@ defmodule Scrivener.Phoenix.Options do
       prev: dgettext("scrivener_phoenix", "Prev"),
       next: dgettext("scrivener_phoenix", "Next"),
       last: dgettext("scrivener_phoenix", "Last"),
+      #gap: "…",
     },
     symbols: %{
-      first: "«",
-      prev: "‹",
-      next: "›",
-      last: "»",
-      #gap: "…",
+      left: "«",
+      xleft: "‹",
+      right: "›",
+      xright: "»",
     },
   ]
 
@@ -79,13 +79,13 @@ defmodule Scrivener.Phoenix.Options do
       prev: String.t,
       next: String.t,
       last: String.t,
+#       gap: String.t,
     },
     symbols: %{
-      first: String.t,
-      prev: String.t,
-      next: String.t,
-      last: String.t,
-#       gap: String.t,
+      left: String.t,
+      xleft: String.t,
+      right: String.t,
+      xright: String.t,
     },
   }
 
@@ -97,5 +97,13 @@ defmodule Scrivener.Phoenix.Options do
         Map.put(acc, k, v)
       end
     )
+  end
+
+  def auto_set_live_option(options = %__MODULE__{live: nil}, conn) do
+    %{options | live: is_struct(conn, Phoenix.LiveView.Socket)}
+  end
+
+  def auto_set_live_option(options, _conn) do
+    options
   end
 end
