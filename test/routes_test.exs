@@ -10,9 +10,9 @@ defmodule Scrivener.Phoenix.RoutesTest do
     ]
   end
 
-  defp routes do
+  defp routes(conn) do
     [
-#       conn,
+      conn,
       @endpoint,
     ]
   end

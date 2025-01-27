@@ -99,13 +99,16 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       |> prepend_to_list_if_not_nil(links)
     end
 
+    defp label(page = %Scrivener.Phoenix.Page{}), do: page.no
+    defp label(%Scrivener.Phoenix.Gap{}), do: "…"
+
     defp append_pages(links, pages, options) do
       result =
         pages
         |> Enum.reverse()
         |> Enum.map(
           fn p ->
-            options.template.page(p, p.no, nil, nil)
+              options.template.page(p, label(p), nil, nil)
           end
         )
 
