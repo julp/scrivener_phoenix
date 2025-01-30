@@ -25,6 +25,7 @@ defmodule ScrivenerPhoenixWeb.ConnCase do
 
       @router ScrivenerPhoenixTestWeb.Router
       @endpoint ScrivenerPhoenixTestWeb.Endpoint
+      @url "https://www.scrivener-phoenix.test:2043"
 
       use Phoenix.VerifiedRoutes, [
         router: @router,

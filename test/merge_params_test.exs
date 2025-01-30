@@ -46,27 +46,27 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
   end
 
   describe "test merge_params behaviour" do
-    test "query string is dropped when false", %{conn: conn} do
+    test "original query string is dropped when false", %{conn: conn} do
       for route <- routes() do
         do_test(conn, route, [:index], [param_name: :seite, merge_params: false], %{"seite" => "2"})
       end
       do_test(nil, &(~p"/blog/posts?#{&1}"), [], [param_name: :seite, merge_params: false], %{"seite" => "2"})
     end
 
-    test "query string is reproduced when true", %{conn: conn} do
+    test "original query string is reproduced when true", %{conn: conn} do
       for route <- routes() do
         do_test(conn, route, [:index], [param_name: :seite, merge_params: true], %{"seite" =>"2", "page" => "1", "search" => "spaghetti", "per" => "50"})
       end
       do_test(nil, &(~p"/blog/posts?#{&1}"), [], [param_name: :seite, merge_params: true], %{"seite" =>"2"})
     end
 
-    test "query string is reproduced but page parameter is overridden if already present when true", %{conn: conn} do
+    test "original query string is reproduced but page parameter is overridden if already present when true", %{conn: conn} do
       for route <- routes() do
         do_test(conn, route, [:index], [merge_params: true], %{"page" => "2", "search" => "spaghetti", "per" => "50"})
       end
     end
 
-    test "query string is selectively reproduced but page is overridden if already present when a list", %{conn: conn} do
+    test "original query string is selectively reproduced but page is overridden if already present when a list", %{conn: conn} do
       args = [:index]
       expected = %{"page" => "2", "search" => "spaghetti"}
 
@@ -80,13 +80,13 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
       do_test(conn, &Routes.blog_post_url/3, args, [merge_params: ~W[per]a], expected)
     end
 
-    test "query string with a list in parameters", %{conn: conn} do
+    test "original query string contains a list in parameters", %{conn: conn} do
       for source <- [conn, %URI{}] do
         do_query_test(source, "page=1&id[]=5&id[]=3", [merge_params: ~W[id]], %{"id" => ["5", "3"]})
       end
     end
 
-    test "query string with a map in parameters", %{conn: conn} do
+    test "query string contains a map in parameters", %{conn: conn} do
       for source <- [conn, %URI{}] do
         do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: ~W[id]], %{"id" => %{"5" => "false", "3" => "true"}})
       end

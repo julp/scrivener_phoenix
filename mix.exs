@@ -13,6 +13,7 @@ defmodule Scrivener.Phoenix.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
+      consolidate_protocols: Mix.env() != :test,
       source_url: "https://github.com/julp/scrivener_phoenix",
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [plt_add_apps: [:mix, :ex_unit]],

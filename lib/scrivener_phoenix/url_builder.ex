@@ -262,20 +262,6 @@ end
   end
   # </to handle sigil_p>
 
-  # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
-  defp handle_arguments(conn, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
-    when arity == helper_arguments_length + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
-  do
-    page_as_path(route, [conn | helper_arguments], sanitized_params, options)
-  end
-
-  # else integrate page_number as query string
-  defp handle_arguments(conn, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
-    when arity == helper_arguments_length + 2 # 2 for (not counted) conn + additionnal parameters (query string)
-  do
-    page_as_query_string(route, [conn | helper_arguments], sanitized_params, options)
-  end
-
   # <user already provided conn/socket/endpoint in helper_arguments>
   defp handle_arguments(conn, route, arity, helper_arguments = [conn | _rest], helper_arguments_length, sanitized_params, options)
     when not is_nil(conn) and arity == helper_arguments_length + 1
@@ -289,6 +275,20 @@ end
     page_as_path(route, helper_arguments, sanitized_params, options)
   end
   # </user already provided conn/socket/endpoint in helper_arguments>
+
+  # if length(helper_arguments) > arity(fun) then integrate page_number as helper's arguments
+  defp handle_arguments(conn, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
+    when arity == helper_arguments_length + 3 # 3 for (not counted) conn + additionnal parameters (query string) + page (as part of URL's path)
+  do
+    page_as_path(route, [conn | helper_arguments], sanitized_params, options)
+  end
+
+  # else integrate page_number as query string
+  defp handle_arguments(conn, route, arity, helper_arguments, helper_arguments_length, sanitized_params, options)
+    when arity == helper_arguments_length + 2 # 2 for (not counted) conn + additionnal parameters (query string)
+  do
+    page_as_query_string(route, [conn | helper_arguments], sanitized_params, options)
+  end
 
 #   defp handle_arguments(_conn, route, arity, helper_arguments = [%module{} | _rest], helper_arguments_length, sanitized_params, options)
 #     when module in [Plug.Conn, Phoenix.LiveView.Socket] and arity == helper_arguments_length + 1
