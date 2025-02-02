@@ -7,7 +7,7 @@ defmodule Scrivener.PhoenixWeb.Component do
   use Gettext, backend: Scrivener.Phoenix.Gettext
 
   attr :conn, :any, default: nil
-  attr :route, :any, required: true
+  attr :route, :any, default: nil
   attr :spage, Scrivener.Page, required: true
 #   attr :options, :any, default: []
   attr :args, :list, default: []
@@ -39,11 +39,24 @@ defmodule Scrivener.PhoenixWeb.Component do
     options =
       assigns
       |> Phoenix.Component.assigns_to_attributes(~W[conn route spage args]a)
-      # TODO: convertion Keyword => Map
-      |> IO.inspect(label: "OPTIONS ?")
+      |> Scrivener.Phoenix.Options.merge()
+      |> Scrivener.Phoenix.Options.auto_set_live_option(assigns.conn)
+
+    fun = Scrivener.Phoenix.URLBuilder.url(assigns.conn, assigns.route, assigns.args, options)
+    {first, prev} = Scrivener.Phoenix.Paginator.first_previous_page(assigns.spage, options)
+    {next, last} = Scrivener.Phoenix.Paginator.next_last_page(assigns.spage, options)
+    window_pages = Scrivener.Phoenix.Paginator.window_pages(assigns.spage, options)
+    # TODO: drop @spage from assigns
 
     # assigns = assign(assigns, Map.take(assigns, ~W[left right live inverted ...]a))
-    do_paginate(assigns)
+    assigns
+    |> assign(:options, options)
+    |> assign(:first, first)
+    |> assign(:prev, prev)
+    |> assign(:next, next)
+    |> assign(:last, last)
+    |> assign(:pages, window_pages)
+    |> handle_inverted()
   end
 
   # skip pagination if:
@@ -57,33 +70,33 @@ defmodule Scrivener.PhoenixWeb.Component do
     ~H""
   end
 
-  defp do_paginate(assigns) do
+  defp real_paginate(assigns) do
     # TODO: calculs des pages
     # TODO: en inverted, switcher first <=> last et previous <=> next
     # spage transformé en first/prev/liste de pages/next/last
     ~H"""
-    <%= if @first == [] do %>
+    <%= if @page == [] do %>
       <.page href={@left.href} rel={rel_attribute_value(@left)} text={"TODO"} live={@live}/>
     <% else %>
       <%# TODO: options (live notamment) %>
-      <%= render_slot(@first, @left) %>
+      <%= render_slot(@page, @left) %>
     <% end %>
 
-    <!-- pareil pour prev -->
+    <%!-- pareil pour prev --%>
 
     <%= for page <- @pages do %>
       <%# TODO: gap %>
       <%= if @page == [] do %>
-        <.page href={@page.href} rel={rel_attribute_value(@page)} text={@page.no} live={@live}/>
+        <.page href={page.href} rel={rel_attribute_value(page)} text={page.no} live={@live}/>
       <% else %>
-        <%# TODO: options (live notamment) %>
+        <%# TODO: faire suivre les options (live notamment) %>
         <%= render_slot(@page, page) %>
       <% end %>
     <% end %>
 
-    <!-- pareil pour next -->
+    <%!-- pareil pour next --%>
 
-    <!-- pareil pour last -->
+    <%!-- pareil pour last --%>
     """
   end
 
@@ -94,12 +107,14 @@ defmodule Scrivener.PhoenixWeb.Component do
   defp handle_inverted(assigns = %{inverted: true}) do
     # TODO: labels + symboles
     ~H"""
-    <.x
+    <.real_paginate
       left={@next}
       right={@prev}
       xleft={@last}
       xright={@first}
       pages={Enum.reverse(@pages)}
+      page={@page}
+      live={@options.live}
     />
     """
   end
@@ -107,12 +122,14 @@ defmodule Scrivener.PhoenixWeb.Component do
   defp handle_inverted(assigns) do
     # TODO: labels + symboles
     ~H"""
-    <.x
+    <.real_paginate
       left={@prev}
       right={@next}
       xleft={@first}
       xright={@last}
       pages={@pages}
+      page={@page}
+      live={@options.live}
     />
     """
   end

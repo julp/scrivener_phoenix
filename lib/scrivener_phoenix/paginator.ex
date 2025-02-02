@@ -41,6 +41,7 @@ defmodule Scrivener.Phoenix.Paginator do
       end
     )
     |> insert_gap(page, options)
+    |> Enum.reverse()
   end
 
   defp was_truncated([%Scrivener.Phoenix.Gap{} | _tail]), do: true

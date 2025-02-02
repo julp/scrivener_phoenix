@@ -58,6 +58,7 @@ defmodule Scrivener.Phoenix.MixProject do
     [
       {:gettext, "~> 0.26"},
       {:scrivener, "~> 2.7"},
+      {:plug, "~> 1.16"}, # for Plug.Conn.Query.encode/2
       {:phoenix_view, "~> 2.0", only: :test},
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_view, "~> 1.0"},

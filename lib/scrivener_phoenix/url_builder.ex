@@ -66,16 +66,16 @@ defmodule Scrivener.Phoenix.URLBuilder do
     helper_arguments :: [any],
     options :: options
   ) :: (pos_integer -> String.t) | no_return
-  def url(conn, fun, helper_arguments, options = %Scrivener.Phoenix.Options{}) do
-    do_url(conn, fun, helper_arguments, fetch_and_sanitize_params(conn, options), options)
-  end
-
-  defp do_url(string, fun = nil, helper_arguments = [], sanitized_params, options)
+  def url(string, fun = nil, helper_arguments = [], options = %Scrivener.Phoenix.Options{})
     when is_binary(string)
   do
     string
     |> URI.new!() # => no_return
-    |> do_url(fun, helper_arguments, sanitized_params, options)
+    |> url(fun, helper_arguments, options)
+  end
+
+  def url(conn, fun, helper_arguments, options = %Scrivener.Phoenix.Options{}) do
+    do_url(conn, fun, helper_arguments, fetch_and_sanitize_params(conn, options), options)
   end
 
   defp do_url(uri = %URI{}, _fun = nil, _helper_arguments = [], sanitized_params, options) do

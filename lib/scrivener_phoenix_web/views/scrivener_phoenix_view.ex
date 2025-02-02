@@ -24,7 +24,7 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       window_pages =
         page
         |> Scrivener.Phoenix.Paginator.window_pages(options)
-        |> reverse_links_if_not_inversed(options)
+        |> reverse_links_if_inverted(options)
 
       []
       |> prepend_right_links(first, prev, next, last, options)
@@ -78,10 +78,13 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       |> maybe_prepend(first, options.labels.first, options.symbols.xleft, nil, options)
     end
 
-    defp reverse_links_if_not_inversed(links, %{inverted: true}), do: links
-    defp reverse_links_if_not_inversed(links, _options) do
+    defp reverse_links_if_inverted(links, %{inverted: true}) do
       links
       |> Enum.reverse()
+    end
+
+    defp reverse_links_if_inverted(links, _options) do
+      links
     end
 
     defp prepend_to_list_if_not_nil(nil, list), do: list
