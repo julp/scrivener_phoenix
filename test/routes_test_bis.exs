@@ -16,6 +16,10 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {"/blog/posts", nil, []},
       {%URI{path: "/blog/posts"}, nil, []},
       {nil, fn params -> ~p"/blog/posts?#{params}" end, []},
+      {conn, fn _conn, params -> ~p"/blog/posts?#{params}" end, []},
+      {@endpoint, fn _endpoint, params -> ~p"/blog/posts?#{params}" end, []},
+      {conn, fn _conn, params -> ~p"/blog/posts?#{params}" end, [conn]},
+      {@endpoint, fn _endpoint, params -> ~p"/blog/posts?#{params}" end, [@endpoint]},
     ]
   end
 
@@ -28,6 +32,10 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {"#{@url}/blog/posts", nil, []},
       {URI.merge(URI.parse(@url), %URI{path: "/blog/posts"}), nil, []},
       {nil, fn params -> @url <> ~p"/blog/posts?#{params}" end, []},
+      {conn, fn _conn, params -> @url <> ~p"/blog/posts?#{params}" end, []},
+      {@endpoint, fn _endpoint, params -> @url <> ~p"/blog/posts?#{params}" end, []},
+      {conn, fn _conn, params -> @url <> ~p"/blog/posts?#{params}" end, [conn]},
+      {@endpoint, fn _endpoint, params -> @url <> ~p"/blog/posts?#{params}" end, [@endpoint]},
     ]
   end
 
@@ -38,6 +46,10 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {@endpoint, &Routes.blog_seite_path/4, [:index]},
       {@endpoint, &Routes.blog_seite_path/4, [@endpoint, :index]},
       {nil, fn page, params -> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {conn, fn _conn, page, params -> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {@endpoint, fn _endpoint, page, params -> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {conn, fn _conn, page, params -> ~p"/blog/posts/seite/#{page}?#{params}" end, [conn]},
+      {@endpoint, fn _endpoint, page, params -> ~p"/blog/posts/seite/#{page}?#{params}" end, [@endpoint]},
     ]
   end
 
@@ -48,6 +60,10 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {@endpoint, &Routes.blog_seite_url/4, [:index]},
       {@endpoint, &Routes.blog_seite_url/4, [@endpoint, :index]},
       {nil, fn page, params -> @url <> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {conn, fn _conn, page, params -> @url <> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {@endpoint, fn _endpoint, page, params -> @url <> ~p"/blog/posts/seite/#{page}?#{params}" end, []},
+      {conn, fn _conn, page, params -> @url <> ~p"/blog/posts/seite/#{page}?#{params}" end, [conn]},
+      {@endpoint, fn _endpoint, page, params -> @url <> ~p"/blog/posts/seite/#{page}?#{params}" end, [@endpoint]},
     ]
   end
 
@@ -62,12 +78,20 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {"/forum/topics/#{topic.uuid}", nil, []},
       {%URI{path: "/forum/topics/#{topic.uuid}"}, nil, []},
       {nil, fn topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {@endpoint, fn _endpoint, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [conn, topic.uuid]},
+      {@endpoint, fn _endpoint, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [@endpoint, topic.uuid]},
 
       {conn, &Routes.forum_topic_path/4, [:show, topic]},
       {conn, &Routes.forum_topic_path/4, [conn, :show, topic]},
       {@endpoint, &Routes.forum_topic_path/4, [:show, topic]},
       {@endpoint, &Routes.forum_topic_path/4, [@endpoint, :show, topic]},
       {nil, fn topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {@endpoint, fn _endpoint, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [conn, topic]},
+      {@endpoint, fn _endpoint, topic, params -> ~p"/forum/topics/#{topic}?#{params}" end, [@endpoint, topic]},
     ]
   end
 
@@ -82,12 +106,20 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {"#{@url}/forum/topics/#{topic.uuid}", nil, []},
       {URI.merge(URI.parse(@url), %URI{path: "/forum/topics/#{topic.uuid}"}), nil, []},
       {nil, fn topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {@endpoint, fn _endpoint, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [conn, topic.uuid]},
+      {@endpoint, fn _endpoint, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [@endpoint, topic.uuid]},
 
       {conn, &Routes.forum_topic_url/4, [:show, topic]},
       {conn, &Routes.forum_topic_url/4, [conn, :show, topic]},
       {@endpoint, &Routes.forum_topic_url/4, [:show, topic]},
       {@endpoint, &Routes.forum_topic_url/4, [@endpoint, :show, topic]},
       {nil, fn topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {@endpoint, fn _endpoint, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [conn, topic]},
+      {@endpoint, fn _endpoint, topic, params -> @url <> ~p"/forum/topics/#{topic}?#{params}" end, [@endpoint, topic]},
     ]
   end
 
@@ -100,12 +132,20 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {@endpoint, &Routes.forum_topic_page_path/5, [:show, topic.uuid]},
       {@endpoint, &Routes.forum_topic_page_path/5, [@endpoint, :show, topic.uuid]},
       {nil, fn topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
+      {@endpoint, fn _endpoint, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic.uuid]},
+      {@endpoint, fn _endpoint, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic.uuid]},
 
       {conn, &Routes.forum_topic_page_path/5, [:show, topic]},
       {conn, &Routes.forum_topic_page_path/5, [conn, :show, topic]},
       {@endpoint, &Routes.forum_topic_page_path/5, [:show, topic]},
       {@endpoint, &Routes.forum_topic_page_path/5, [@endpoint, :show, topic]},
       {nil, fn topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
+      {@endpoint, fn _endpoint, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic]},
+      {@endpoint, fn _endpoint, topic, page, params -> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic]},
     ]
   end
 
@@ -118,20 +158,20 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
       {@endpoint, &Routes.forum_topic_page_url/5, [:show, topic.uuid]},
       {@endpoint, &Routes.forum_topic_page_url/5, [@endpoint, :show, topic.uuid]},
       {nil, fn topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
-      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]}, # +
-      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]}, # +
-      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic.uuid]}, # +
-      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic.uuid]}, # +
+      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
+      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic.uuid]},
+      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic.uuid]},
+      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic.uuid]},
 
       {conn, &Routes.forum_topic_page_url/5, [:show, topic]},
       {conn, &Routes.forum_topic_page_url/5, [conn, :show, topic]},
       {@endpoint, &Routes.forum_topic_page_url/5, [:show, topic]},
       {@endpoint, &Routes.forum_topic_page_url/5, [@endpoint, :show, topic]},
       {nil, fn topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
-      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]}, # +
-      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]}, # +
-      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic]}, # +
-      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic]}, # +
+      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
+      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [topic]},
+      {conn, fn _conn, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [conn, topic]},
+      {@endpoint, fn _endpoint, topic, page, params -> @url <> ~p"/forum/topics/#{topic}/page/#{page}?#{params}" end, [@endpoint, topic]},
     ]
   end
 
@@ -192,38 +232,42 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
   end
 
   describe "YYY" do
+    setup %{conn: conn} do
+      [
+        conn: set_query(conn, %{"foo" => "bar"}),
+      ]
+    end
+
     test "blog_post_path", %{conn: conn} do
-      do_test2(conn, &blog_post_path/1, "/blog/posts?page=2")
+      do_test2(conn, &blog_post_path/1, "/blog/posts?foo=bar&page=2")
     end
 
     test "blog_post_url", %{conn: conn} do
-      do_test2(conn, &blog_post_url/1, "#{@url}/blog/posts?page=2")
+      do_test2(conn, &blog_post_url/1, "#{@url}/blog/posts?foo=bar&page=2")
     end
 
     test "blog_seite_path", %{conn: conn} do
-      do_test2(conn, &blog_seite_path/1, "/blog/posts/seite/2")
+      do_test2(conn, &blog_seite_path/1, "/blog/posts/seite/2?foo=bar")
     end
 
     test "blog_seite_url", %{conn: conn} do
-      conn
-      |> set_query(%{"foo" => "bar"})
-      |> do_test2(&blog_seite_url/1, "#{@url}/blog/posts/seite/2?foo=bar")
+      do_test2(conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2?foo=bar")
     end
 
     test "forum_topic_path", %{conn: conn} do
-      do_test2(conn, &forum_topic_path/1, "/forum/topics/643?page=2")
+      do_test2(conn, &forum_topic_path/1, "/forum/topics/643?foo=bar&page=2")
     end
 
     test "forum_topic_url", %{conn: conn} do
-      do_test2(conn, &forum_topic_url/1, "#{@url}/forum/topics/587?page=2")
+      do_test2(conn, &forum_topic_url/1, "#{@url}/forum/topics/587?foo=bar&page=2")
     end
 
     test "forum_topic_page_path", %{conn: conn} do
-      do_test2(conn, &forum_topic_page_path/1, "/forum/topics/127/page/2")
+      do_test2(conn, &forum_topic_page_path/1, "/forum/topics/127/page/2?foo=bar")
     end
 
     test "forum_topic_page_url", %{conn: conn} do
-      do_test2(conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2")
+      do_test2(conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2?foo=bar")
     end
   end
 end
