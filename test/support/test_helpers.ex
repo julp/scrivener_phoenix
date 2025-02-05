@@ -1,30 +1,33 @@
 defmodule ScrivenerPhoenix.TestHelpers do
   #alias Scrivener.Phoenix.Page
 
-  @spec decode_query(query :: %{optional(String.t) => any}) :: String.t
-  defp encode_query(query) do
+  def encode_query("" <> query) do
+    query
+  end
+
+  def encode_query(query) do
     Plug.Conn.Query.encode(query)
   end
 
-  @spec decode_query(query :: String.t) :: %{optional(String.t) => any}
-  defp decode_query(query) do
+  def decode_query("" <> query) do
     Plug.Conn.Query.decode(query)
   end
 
+  def decode_query(query) do
+    query
+  end
+
+  def set_query("" <> string, query) do
+    uri = URI.parse(string)
+    %{uri | query: query |> decode_query() |> encode_query()}
+  end
+
   def set_query(conn = %Plug.Conn{}, query) do
-    if is_binary(query) do
-      %{conn | query_params: decode_query(query)}
-    else
-      %{conn | query_params: query}
-    end
+    %{conn | query_params: query |> decode_query()}
   end
 
   def set_query(uri = %URI{}, query) do
-    if is_binary(query) do
-      %{uri | query: query}
-    else
-      %{uri | query: encode_query(query)}
-    end
+    %{uri | query: query |> decode_query() |> encode_query()}
   end
 
   defp do_compare_uri(result, expected = %URI{}, params) do

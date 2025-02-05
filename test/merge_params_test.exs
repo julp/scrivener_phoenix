@@ -25,13 +25,13 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
     fun = Scrivener.Phoenix.URLBuilder.url(conn, route, helper_arguments, options)
     uri = fun.(2) |> URI.parse()
 
-    assert expected == URI.decode_query(uri.query)
+    assert expected == decode_query(uri.query)
 
     if conn do
       fun = Scrivener.Phoenix.URLBuilder.url(conn, route, [conn | helper_arguments], options)
       uri = fun.(2) |> URI.parse()
 
-      assert expected == URI.decode_query(uri.query)
+      assert expected == decode_query(uri.query)
     end
   end
 
@@ -100,7 +100,7 @@ defmodule Scrivener.Phoenix.MergeParamsTest do
 
     test "ensure a map in input paremeters (user_params) are correctly encoded", %{conn: conn} do
       for source <- [conn, %URI{}] do
-        do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: true, params: [id: %{"2" => "on", "7" => ""}]], %{"id" => %{"2" => "on", "7" => ""}})
+        do_query_test(source, "page=1&id[5]=false&id[3]=true", [merge_params: true, params: [id: %{2 => "on", 7 => ""}]], %{"id" => %{"2" => "on", "7" => ""}})
       end
     end
   end

@@ -195,7 +195,7 @@ end
   end
 
   defp merge_user_params(new_query_params, _options = %Scrivener.Phoenix.Options{params: user_params}) do
-    Map.merge(new_query_params, Enum.into(user_params, %{}))
+    Map.merge(new_query_params, user_params |> Plug.Conn.Query.encode() |> Plug.Conn.Query.decode())
   end
 
   # if length(arguments) > arity(fun)
