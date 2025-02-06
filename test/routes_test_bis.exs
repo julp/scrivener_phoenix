@@ -247,10 +247,53 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
     end
   end
 
-  describe "XXX" do
+#   defmacro test_with(options \\ [], initial_query \\ Macro.escape(%{})) do
+#     quote do
+#       setup do
+#         [
+#           initial_query: unquote(initial_query),
+#           options: Scrivener.Phoenix.Options.merge(unquote(options)),
+#         ]
+#       end
+
+#       test "blog_post_path", assigns do
+#         do_test2(assigns.conn, &blog_post_path/1, "/blog/posts", assigns.initial_query, assigns.options)
+#       end
+
+#       test "blog_post_url", assigns do
+#         do_test2(assigns.conn, &blog_post_url/1, "#{@url}/blog/posts", assigns.initial_query, assigns.options)
+#       end
+
+#       test "blog_seite_path", assigns do
+#         do_test2(assigns.conn, &blog_seite_path/1, "/blog/posts/seite/2", assigns.initial_query, assigns.options)
+#       end
+
+#       test "blog_seite_url", assigns do
+#         do_test2(assigns.conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2", assigns.initial_query, assigns.options)
+#       end
+
+#       test "forum_topic_path", assigns do
+#         do_test2(assigns.conn, &forum_topic_path/1, "/forum/topics/643", assigns.initial_query, assigns.options)
+#       end
+
+#       test "forum_topic_url", assigns do
+#         do_test2(assigns.conn, &forum_topic_url/1, "#{@url}/forum/topics/587", assigns.initial_query, assigns.options)
+#       end
+
+#       test "forum_topic_page_path", assigns do
+#         do_test2(assigns.conn, &forum_topic_page_path/1, "/forum/topics/127/page/2", assigns.initial_query, assigns.options)
+#       end
+
+#       test "forum_topic_page_url", assigns do
+#         do_test2(assigns.conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2", assigns.initial_query, assigns.options)
+#       end
+#     end
+#   end
+
+  describe "original query string is dropped when merge_params = false (default)" do
     setup do
       [
-        options: Scrivener.Phoenix.Options.merge([])
+        options: Scrivener.Phoenix.Options.merge([]),
       ]
     end
 
@@ -287,11 +330,177 @@ defmodule Scrivener.Phoenix.RoutesTestBis do
     end
   end
 
-  describe "YYY" do
+  describe "original query string is reproduced when merge_params = true" do
     setup do
       [
         initial_query: %{"foo" => "bar"},
         options: Scrivener.Phoenix.Options.merge([merge_params: true]),
+      ]
+    end
+
+    test "blog_post_path", assigns do
+      do_test2(assigns.conn, &blog_post_path/1, "/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_post_url", assigns do
+      do_test2(assigns.conn, &blog_post_url/1, "#{@url}/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_path", assigns do
+      do_test2(assigns.conn, &blog_seite_path/1, "/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_url", assigns do
+      do_test2(assigns.conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_path", assigns do
+      do_test2(assigns.conn, &forum_topic_path/1, "/forum/topics/643", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_url", assigns do
+      do_test2(assigns.conn, &forum_topic_url/1, "#{@url}/forum/topics/587", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_path", assigns do
+      do_test2(assigns.conn, &forum_topic_page_path/1, "/forum/topics/127/page/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_url", assigns do
+      do_test2(assigns.conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2", assigns.initial_query, assigns.options)
+    end
+  end
+
+  describe "original query string is reproduced but page parameter is overridden or drop if already present when merge_params = true" do
+    setup do
+      [
+        initial_query: %{"page" => "666"},
+        options: Scrivener.Phoenix.Options.merge([merge_params: true]),
+      ]
+    end
+
+    test "blog_post_path", assigns do
+      do_test2(assigns.conn, &blog_post_path/1, "/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_post_url", assigns do
+      do_test2(assigns.conn, &blog_post_url/1, "#{@url}/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_path", assigns do
+      do_test2(assigns.conn, &blog_seite_path/1, "/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_url", assigns do
+      do_test2(assigns.conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_path", assigns do
+      do_test2(assigns.conn, &forum_topic_path/1, "/forum/topics/643", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_url", assigns do
+      do_test2(assigns.conn, &forum_topic_url/1, "#{@url}/forum/topics/587", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_path", assigns do
+      do_test2(assigns.conn, &forum_topic_page_path/1, "/forum/topics/127/page/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_url", assigns do
+      do_test2(assigns.conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2", assigns.initial_query, assigns.options)
+    end
+
+#     test_with([merge_params: true], %{"page" => "666"})
+  end
+
+  describe "param_name = :seite, merge_params = true" do
+    setup do
+      [
+        initial_query: %{"foo" => "bar"},
+        options: Scrivener.Phoenix.Options.merge([param_name: :seite, merge_params: true]),
+      ]
+    end
+
+    test "blog_post_path", assigns do
+      do_test2(assigns.conn, &blog_post_path/1, "/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_post_url", assigns do
+      do_test2(assigns.conn, &blog_post_url/1, "#{@url}/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_path", assigns do
+      do_test2(assigns.conn, &blog_seite_path/1, "/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_url", assigns do
+      do_test2(assigns.conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_path", assigns do
+      do_test2(assigns.conn, &forum_topic_path/1, "/forum/topics/643", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_url", assigns do
+      do_test2(assigns.conn, &forum_topic_url/1, "#{@url}/forum/topics/587", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_path", assigns do
+      do_test2(assigns.conn, &forum_topic_page_path/1, "/forum/topics/127/page/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_url", assigns do
+      do_test2(assigns.conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2", assigns.initial_query, assigns.options)
+    end
+  end
+
+  describe "merge_params = [\"search\", \"per\"]" do
+    setup do
+      [
+        initial_query: %{"page" => "123", "search" => "spaghetti", "per" => "50"},
+        options: Scrivener.Phoenix.Options.merge([merge_params: ~W[search per]]),
+      ]
+    end
+
+    test "blog_post_path", assigns do
+      do_test2(assigns.conn, &blog_post_path/1, "/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_post_url", assigns do
+      do_test2(assigns.conn, &blog_post_url/1, "#{@url}/blog/posts", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_path", assigns do
+      do_test2(assigns.conn, &blog_seite_path/1, "/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "blog_seite_url", assigns do
+      do_test2(assigns.conn, &blog_seite_url/1, "#{@url}/blog/posts/seite/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_path", assigns do
+      do_test2(assigns.conn, &forum_topic_path/1, "/forum/topics/643", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_url", assigns do
+      do_test2(assigns.conn, &forum_topic_url/1, "#{@url}/forum/topics/587", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_path", assigns do
+      do_test2(assigns.conn, &forum_topic_page_path/1, "/forum/topics/127/page/2", assigns.initial_query, assigns.options)
+    end
+
+    test "forum_topic_page_url", assigns do
+      do_test2(assigns.conn, &forum_topic_page_url/1, "#{@url}/forum/topics/946/page/2", assigns.initial_query, assigns.options)
+    end
+  end
+
+  describe "merge_params = [:search, :per]" do
+    setup do
+      [
+        initial_query: %{"page" => "456", "search" => "spaghetti", "per" => "50"},
+        options: Scrivener.Phoenix.Options.merge([merge_params: ~W[search per]a]),
       ]
     end
 
