@@ -18,8 +18,10 @@ defmodule ScrivenerPhoenix.TestHelpers do
   end
 
   def set_query("" <> string, query) do
-    uri = URI.parse(string)
-    %{uri | query: query |> decode_query() |> encode_query()}
+    string
+    |> URI.parse()
+    |> set_query(query)
+    |> URI.to_string()
   end
 
   def set_query(conn = %Plug.Conn{}, query) do
@@ -34,15 +36,15 @@ defmodule ScrivenerPhoenix.TestHelpers do
     import ExUnit.Assertions
 
     assert %{result | query: nil} == %{expected | query: nil}
-    assert decode_query(result.query) == params
+    assert decode_query(result.query || "") == decode_query(encode_query(params))
   end
 
   defp do_compare_uri(result, "" <> expected, params) do
-    compare_uri(result, URI.parse(expected), params)
+    do_compare_uri(result, URI.parse(expected), params)
   end
 
   @doc ~S"""
-  Compare *result* to *expected* but ignore *expected*'s  query in favor of *params*
+  Compare *result* to *expected* but ignore *expected*'s query in favor of *params*
   """
   def compare_uri("" <> result, expected, params) do
     result
