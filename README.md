@@ -63,7 +63,7 @@ config :scrivener_phoenix,
 * param_name (default: `:page`): the name of the parameter generated in URL (query string) to propagate the page number
 * merge_params (default: `false`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
 * template (default: `Scrivener.Phoenix.Template.Bootstrap4`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
-* symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
+* symbols (default: `%{xleft: "«", left: "‹", right: "›", xright: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
 * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`): the texts used by links to describe the first, previous, next and last page
 
 ## Usage

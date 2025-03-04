@@ -3,6 +3,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
   TODO
   """
 
+  @type generator :: (pos_integer -> String.t)
   @typep conn_or_socket_or_endpoint_or_uri_or_binary_or_nil :: Scrivener.PhoenixView.conn_or_socket_or_endpoint_or_uri_or_binary_or_nil
   @typep options :: Scrivener.Phoenix.Options.t
   @typep params :: %{optional(String.t) => any}
@@ -65,7 +66,7 @@ defmodule Scrivener.Phoenix.URLBuilder do
     fun :: (... -> String.t) | nil,
     helper_arguments :: [any],
     options :: options
-  ) :: (pos_integer -> String.t) | no_return
+  ) :: generator | no_return
   def url(string, fun = nil, helper_arguments = [], options = %Scrivener.Phoenix.Options{})
     when is_binary(string)
   do

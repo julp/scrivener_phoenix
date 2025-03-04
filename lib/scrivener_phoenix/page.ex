@@ -4,17 +4,20 @@ defmodule Scrivener.Phoenix.Page do
   """
 
   @derive {Phoenix.Param, key: :no}
-  defstruct ~W[no href]a
+  defstruct ~W[no href label rel]a
 
   @type t :: %__MODULE__{
     no: non_neg_integer,
     href: String.t,
+    label: String.t,
+    rel: nil | :current | :prev | :next,
   }
 
-  def create(no, href \\ "TODO") do # TODO: (no, fun)
+  @spec create(no :: pos_integer, fun :: Scrivener.Phoenix.URLBuilder.generator) :: t
+  def create(no, fun) do
     %__MODULE__{
       no: no,
-      href: href,
+      href: fun.(no),
 #       next?: no == page_number + 1,
 #       prev?: no == page_number - 1,
 #       current?: no == page_number,
@@ -22,8 +25,27 @@ defmodule Scrivener.Phoenix.Page do
     }
   end
 
-  def link_callback(%{live: true}), do: &Phoenix.LiveView.Helpers.live_patch/2
-  def link_callback(_options), do: &PhoenixHTMLHelpers.Link.link/2
+  @spec create(spage :: Scrivener.Page.t) :: (no :: non_neg_integer, fun :: Scrivener.Phoenix.URLBuilder.generator, label :: String.t -> t)
+  def create(_spage = %Scrivener.Page{page_number: page_number}) do
+    fn no, fun, label ->
+      %__MODULE__{
+        no: no,
+        label: label,
+        href: fun.(no),
+        rel:
+          cond do
+            no == page_number ->
+              :current
+            no == page_number + 1 ->
+              :next
+            no == page_number - 1 ->
+              :prev
+            true ->
+              nil
+          end,
+      }
+    end
+  end
 
 #   def handle_rel(page = %__MODULE__{}, spage = %Scrivener.Page{}, attributes \\ []) do
 #     cond do

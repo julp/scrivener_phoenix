@@ -10,6 +10,12 @@ defmodule Scrivener.Phoenix.Options do
   @default_merge_params false
   @default_display_if_single false
   @default_template Scrivener.Phoenix.Template.Bootstrap4
+  @default_symbols %{
+    xleft: "«",
+    left: "‹",
+    right: "›",
+    xright: "»",
+  }
 
   @moduledoc """
   Options:
@@ -28,7 +34,7 @@ defmodule Scrivener.Phoenix.Options do
     * param_name (default: `#{inspect(@default_param_name)}`): the name of the parameter generated in URL (query string) to propagate the page number
     * merge_params (default: `#{inspect(@default_merge_params)}`): `true` to copy the entire query string between requests, `false` to ignore it or a list of the parameter names to only reproduce
     * template (default: `#{inspect(@default_template)}`): the module which implements `Scrivener.Phoenix.Template` to use to render links to pages
-    * symbols (default: `%{first: "«", prev: "‹", next: "›", last: "»"}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
+    * symbols (default: `#{inspect(@default_symbols)}`): the symbols to add before or after the label for the first, previous, next and last page (`nil` or `""` for none)
     * labels (default: `%{first: dgettext("scrivener_phoenix", "First"), prev: dgettext("scrivener_phoenix", "Prev"), next: dgettext("scrivener_phoenix", "Next"), last: dgettext("scrivener_phoenix", "Last")}`):
       the texts used by links to describe the first, previous, next and last page
   """
@@ -54,12 +60,7 @@ defmodule Scrivener.Phoenix.Options do
       last: dgettext("scrivener_phoenix", "Last"),
       #gap: "…",
     },
-    symbols: %{
-      left: "«",
-      xleft: "‹",
-      right: "›",
-      xright: "»",
-    },
+    symbols: @default_symbols,
   ]
 
   @type t :: %__MODULE__{

@@ -19,11 +19,11 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       when is_function(route)
     do
       fun = Scrivener.Phoenix.URLBuilder.url(conn, route, arguments, options)
-      {first, prev} = Scrivener.Phoenix.Paginator.first_previous_page(page, options)
-      {next, last} = Scrivener.Phoenix.Paginator.next_last_page(page, options)
+      {first, prev} = Scrivener.Phoenix.Paginator.first_previous_page(page, fun, options)
+      {next, last} = Scrivener.Phoenix.Paginator.next_last_page(page, fun, options)
       window_pages =
         page
-        |> Scrivener.Phoenix.Paginator.window_pages(options)
+        |> Scrivener.Phoenix.Paginator.window_pages(fun, options)
         |> reverse_links_if_inverted(options)
 
       []
@@ -102,8 +102,8 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
       |> prepend_to_list_if_not_nil(links)
     end
 
-    defp label(page = %Scrivener.Phoenix.Page{}), do: page.no
-    defp label(%Scrivener.Phoenix.Gap{}), do: "…"
+    defp label(page = %Scrivener.Phoenix.Page{}), do: page.label # page.no
+    defp label(%Scrivener.Phoenix.Gap{}), do: "…" # TODO: options.labels.gap ?
 
     defp append_pages(links, pages, options) do
       result =
@@ -111,7 +111,7 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
         |> Enum.reverse()
         |> Enum.map(
           fn p ->
-              options.template.page(p, label(p), nil, nil)
+            options.template.page(p, label(p), nil, nil)
           end
         )
 

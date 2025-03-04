@@ -58,7 +58,7 @@ defmodule Scrivener.Phoenix.Components do
 #       next: !options.inverted,
 #       last: !options.inverted,
 #     }
-# 
+
 #     options = %{options | labels: options.labels
 #       |> Enum.reduce(options.labels, fn {k, v}, acc ->
 #         label =

@@ -3,28 +3,33 @@ defmodule Scrivener.Phoenix.Paginator do
 
   @typep maybe_page :: Scrivener.Phoenix.Page.t | nil
 
-  @spec first_previous_page(Scrivener.Page.t, options :: Scrivener.Phoenix.Options.t) :: {maybe_page, maybe_page}
-  def first_previous_page(%Scrivener.Page{page_number: page_number}, _options) do
+  @spec first_previous_page(page :: Scrivener.Page.t, fun :: Scrivener.Phoenix.URLBuilder.generator, options :: Scrivener.Phoenix.Options.t) :: {maybe_page, maybe_page}
+  def first_previous_page(page = %Scrivener.Page{page_number: page_number}, fun, options) do
     # first = nil if options.show_first = false
     if page_number > 1 do
-      {Page.create(1), Page.create(page_number - 1)}
+      creator = Page.create(page)
+      {creator.(1, fun, options.labels.first), creator.(page_number - 1, fun, options.labels.prev)}
+#       {Page.create(1, fun), Page.create(page_number - 1, fun)}
     else
       {nil, nil}
     end
   end
 
-  @spec next_last_page(Scrivener.Page.t, options :: Scrivener.Phoenix.Options.t) :: {maybe_page, maybe_page}
-  def next_last_page(%Scrivener.Page{page_number: page_number, total_pages: total_pages}, _options) do
+  @spec next_last_page(page :: Scrivener.Page.t, fun :: Scrivener.Phoenix.URLBuilder.generator, options :: Scrivener.Phoenix.Options.t) :: {maybe_page, maybe_page}
+  def next_last_page(page = %Scrivener.Page{page_number: page_number, total_pages: total_pages}, fun, options) do
     # last = nil if options.show_last = false
     if page_number < total_pages do
-      {Page.create(page_number + 1), Page.create(total_pages)}
+      creator = Page.create(page)
+      {creator.(page_number + 1, fun, options.labels.next), creator.(total_pages, fun, options.labels.last)}
+#       {Page.create(page_number + 1, fun), Page.create(total_pages, fun)}
     else
       {nil, nil}
     end
   end
 
-  @spec window_pages(Scrivener.Page.t, options :: Scrivener.Phoenix.Options.t) :: [Scrivener.Phoenix.Page.t]
-  def window_pages(page = %Scrivener.Page{}, options) do
+  @spec window_pages(page :: Scrivener.Page.t, fun :: Scrivener.Phoenix.URLBuilder.generator, options :: Scrivener.Phoenix.Options.t) :: [Scrivener.Phoenix.Page.t]
+  def window_pages(page = %Scrivener.Page{}, fun, options) do
+    creator = Page.create(page)
     left_window_plus_one = range_as_list(1, options.left + 1)
     right_window_plus_one = range_as_list(page.total_pages - options.right, page.total_pages)
     inside_window_plus_each_sides = range_as_list(page.page_number - options.window - 1, page.page_number + options.window + 1)
@@ -37,7 +42,8 @@ defmodule Scrivener.Phoenix.Paginator do
     |> Enum.reject(&(&1 < 1 or &1 > page.total_pages))
     |> Enum.map(
       fn page_number ->
-        Page.create(page_number)#, fun.(page_number))
+#         Page.create(page_number, fun)
+        creator.(page_number, fun, to_string(page_number))
       end
     )
     |> insert_gap(page, options)
@@ -78,6 +84,7 @@ defmodule Scrivener.Phoenix.Paginator do
           [hd | acc]
         !was_truncated(acc) ->
           [%Scrivener.Phoenix.Gap{} | acc]
+          # [%Scrivener.Phoenix.Gap{label: options.labels.gap} | acc] ?
         true ->
           acc
       end
