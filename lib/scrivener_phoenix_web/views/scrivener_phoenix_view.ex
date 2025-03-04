@@ -98,7 +98,7 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
 
     defp maybe_prepend(links, p, label, left_symbol, right_symbol, options) do
       p
-      |> options.template.page(label, left_symbol, right_symbol)
+      |> options.template.page(options, left_symbol, right_symbol)
       |> prepend_to_list_if_not_nil(links)
     end
 
@@ -111,7 +111,7 @@ if Code.ensure_loaded?(PhoenixHTMLHelpers) do
         |> Enum.reverse()
         |> Enum.map(
           fn p ->
-            options.template.page(p, label(p), nil, nil)
+            options.template.page(p, options, nil, nil)
           end
         )
 

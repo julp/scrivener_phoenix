@@ -48,7 +48,7 @@ defmodule Scrivener.Phoenix.Template.Bootstrap4 do
       |> Enum.reject(&is_nil/1)
       |> Enum.join("\u00A0")
 
-    build_element(full_label, page.rel == :current && "#" || page.href, options.live?, [rel: rel_attribute_value(page)], [class: page.rel == :current && "disabled" || nil])
+    build_element(full_label, page.rel == :current && "#" || page.href, options.live, [rel: rel_attribute_value(page)], [class: page.rel == :current && "disabled" || nil])
   end
 
   def page(%Scrivener.Phoenix.Gap{}, _options, _left_symbol, _right_symbol) do
